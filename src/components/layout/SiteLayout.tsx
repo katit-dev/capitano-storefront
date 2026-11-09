@@ -1,0 +1,106 @@
+import { useEffect, useRef, useState } from "react";
+import { useAtomValue, useSetAtom } from "jotai";
+import { FiHeart, FiMenu, FiPhone, FiSearch, FiShoppingBag, FiUser, FiX } from "react-icons/fi";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import BrandLogo from "@/components/BrandLogo";
+import CartDrawer from "@/components/CartDrawer";
+import SiteFooter from "@/components/layout/SiteFooter";
+import SiteNavigation from "@/components/layout/SiteNavigation";
+import FloatingSupport from "@/components/FloatingSupport";
+import FlashSaleAnnouncement from "@/components/FlashSaleAnnouncement";
+import ContentPreviewPopup from "@/components/ContentPreviewPopup";
+import { contentPreviewAtom } from "@/stores/contentPreviewStore";
+import { PATHS } from "@/config/paths";
+import { cartItemsAtom, cartDrawerOpenAtom } from "@/stores/cartStore";
+
+import { useCmsContent, menuTree, recordSiteVisit } from "@/hooks/data/useCmsContent";
+import CmsLink from "@/components/CmsLink";
+import { usePreviewFocus } from "@/hooks/data/cmsPreview";
+
+export default function SiteLayout() {
+  usePreviewFocus();
+  const cms = useCmsContent("home");
+  const content = cms.data?.content;
+  const header = content?.header;
+  const announcement = content?.announcement;
+  const navigation = menuTree(content?.menu || []);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDialogElement>(null);
+  const location = useLocation();
+  const lastVisit = useRef<string | null>(null);
+  const visitPath = location.pathname + location.search;
+  useEffect(() => {
+    // Plain HTTP on a LAN does not expose randomUUID; analytics must not break the page.
+    if (typeof window.crypto?.randomUUID !== "function") return;
+    if (lastVisit.current === visitPath) return;
+    lastVisit.current = visitPath;
+    // A page view is counted once; StrictMode and CMS previews do not add visits.
+    void recordSiteVisit(crypto.randomUUID()).catch(() => {});
+  }, [visitPath]);
+  const cartItems = useAtomValue(cartItemsAtom);
+  const cartCount = cartItems.filter(item => content?.products?.some(product => product.id === item.productId)).reduce((count, item) => count + item.quantity, 0);
+  const cartOpen = useAtomValue(cartDrawerOpenAtom);
+  const contentPreview = useAtomValue(contentPreviewAtom);
+  const setCartOpen = useSetAtom(cartDrawerOpenAtom);
+
+  useEffect(() => {
+    const section = location.hash ? document.getElementById(location.hash.slice(1)) : null;
+    if (section) section.scrollIntoView({ behavior: "instant", block: "start" });
+    else window.scrollTo({ top: 0, behavior: "instant" });
+  }, [location.pathname, location.hash]);
+
+  useEffect(() => {
+    if (menuOpen && !menuRef.current?.open) menuRef.current?.showModal();
+    if (!menuOpen) {
+      if (menuRef.current?.open) menuRef.current.close();
+      menuRef.current?.querySelectorAll<HTMLDetailsElement>("details[open]")
+        .forEach(details => { details.open = false; });
+      return;
+    }
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [menuOpen]);
+
+  return (
+    <div id="site-shell-root" className="site-shell">
+      <a className="skip-link" href="#main-content">Đi tới nội dung chính</a>
+      {announcement && <div className="announcement"><span className="announcement__primary">{announcement.message}</span><span className="picare-signature"><span>{announcement.partnerLabel}</span>{announcement.partnerLogoUrl && <CmsLink to={announcement.partnerLinkUrl || "#"} className={`picare-signature__mark${announcement.partnerLogoUrl.split("?")[0].endsWith("/7db24069-c674-4d32-afc2-3c3d80bc9d35.png") ? " picare-signature__mark--padded" : ""}`}><img src={announcement.partnerLogoUrl} alt={announcement.partnerLogoAlt || ""} /></CmsLink>}</span></div>}
+      {header && <header className="site-header" data-template-fixed="site-header">
+        <div className="site-header__inner container-wide">
+          <button className="header-action header-action--menu" type="button" onClick={() => setMenuOpen(true)} aria-label="Mở menu" aria-expanded={menuOpen} aria-controls="mobile-navigation-dialog"><FiMenu /></button>
+          <CmsLink to={header?.logoLinkUrl || PATHS.HOME} className="header-logo" aria-label="PaxMoly - Trang chủ">{header?.logoUrl && <BrandLogo src={header.logoUrl} alt={header.logoAlt || ""} />}</CmsLink>
+          <SiteNavigation items={navigation} />
+          <div className="header-actions">
+            {(header?.showHotline && header.hotlineNumber) && <a className="header-hotline" href={`tel:${(header.hotlineNumber || "").replace(/[^+0-9]/g, "")}`}>
+              <FiPhone aria-hidden="true" />
+              <span>{header.hotlineLabel} <strong>{header.hotlineNumber}</strong></span>
+            </a>}
+            <NavLink className="header-action header-action--search" to={`${PATHS.SHOP}?focus=search`} aria-label="Tìm kiếm"><FiSearch /></NavLink>
+            <button className="header-action header-action--desktop" type="button" aria-label="Tài khoản"><FiUser /></button>
+            <button className="header-action header-action--desktop" type="button" aria-label="Sản phẩm yêu thích"><FiHeart /></button>
+            {header?.showCart && <button className="header-action header-cart" type="button" onClick={() => setCartOpen(true)} aria-label={`Giỏ hàng, ${cartCount} sản phẩm`}>
+              <FiShoppingBag />
+              {cartCount ? <span>{cartCount}</span> : null}
+            </button>}
+          </div>
+        </div>
+      </header>}
+
+      <dialog ref={menuRef} id="mobile-navigation-dialog" className={menuOpen ? "mobile-menu is-open" : "mobile-menu"} aria-label="Menu chính" onClose={() => setMenuOpen(false)}>
+        <div className="mobile-menu__top">
+          {header?.logoUrl && <BrandLogo compact src={header.logoUrl} alt={header.logoAlt || ""} />}
+          <button className="icon-button icon-button--light" type="button" onClick={() => setMenuOpen(false)} autoFocus aria-label="Đóng menu"><FiX /></button>
+        </div>
+        <SiteNavigation mobile items={navigation} onNavigate={() => setMenuOpen(false)} />
+      </dialog>
+
+      <main id="main-content"><Outlet /></main>
+      <SiteFooter />
+      {!menuOpen && !cartOpen && <FloatingSupport />}
+      <CartDrawer />
+      <ContentPreviewPopup />
+      <FlashSaleAnnouncement items={content?.flashSales} enabled={!menuOpen && !cartOpen && !contentPreview && !cms.isError} />
+    </div>
+  );
+}

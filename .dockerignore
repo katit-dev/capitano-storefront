@@ -1,0 +1,21 @@
+.git
+.github
+.vscode
+node_modules
+dist
+tmp
+.env
+.env.*
+*.log
+*.pdf
+README.md
+
+# Public Vite configuration is included in the production image.
+!.env.production
+
+output
+docs
+scripts
+*.xlsx
+*.zip
+*.tsbuildinfo

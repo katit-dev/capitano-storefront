@@ -1,0 +1,10 @@
+{
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/tin-tuc", "destination": "/tin-tuc/index.html" },
+    { "source": "/tin-tuc/:slug", "destination": "/tin-tuc/:slug/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

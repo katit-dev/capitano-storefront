@@ -1,0 +1,5 @@
+.cms-banner { position: relative; width: 100%; max-width: none; margin: 0; padding: 0; }
+.cms-banner > img { display: block; width: 100%; height: auto; }
+.cms-banner__actions { position: absolute; left: clamp(1rem, 4vw, 4rem); right: clamp(1rem, 4vw, 4rem); bottom: clamp(1rem, 4vw, 4rem); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.cms-banner__actions .button { max-width: 100%; overflow-wrap: anywhere; text-align: center; }
+@media (max-width: 600px) { .cms-banner__actions { position: static; margin: 1rem; } }

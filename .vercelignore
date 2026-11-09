@@ -1,0 +1,21 @@
+# Keep local tools, source documents, and private configuration out of deployments.
+.git/
+.vercel/
+.vscode/
+.codex/
+.agents/
+.aws/
+node_modules/
+dist/
+docs/
+output/
+scripts/
+tmp/
+SEO/
+.env*
+*.xlsx
+*.xls
+*.pdf
+*.log
+*.tsbuildinfo
+coverage/

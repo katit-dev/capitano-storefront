@@ -1,0 +1,184 @@
+.product-preview-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  background: rgb(33 29 25 / 65%);
+  pointer-events: none;
+}
+.product-preview-layer * {
+  pointer-events: none;
+}
+.product-preview {
+  display: flex;
+  flex-direction: column;
+  animation: product-preview-enter 160ms ease-out;
+  --preview-inset: 12px;
+  --preview-height: calc(
+    100dvh - max(var(--preview-inset), env(safe-area-inset-top, 0px)) -
+      max(var(--preview-inset), env(safe-area-inset-bottom, 0px))
+  );
+  width: min(
+    640px,
+    calc(
+      100vw - max(var(--preview-inset), env(safe-area-inset-left, 0px)) -
+        max(var(--preview-inset), env(safe-area-inset-right, 0px))
+    )
+  );
+  max-width: none;
+  max-height: var(--preview-height);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  color: var(--brown);
+  background: var(--white);
+  box-shadow: 0 24px 80px rgb(68 50 39 / 24%);
+}
+.product-preview__header {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--green-mist);
+}
+.product-preview__header > span {
+  font:
+    600 0.75rem/1.5 "Montserrat",
+    sans-serif;
+  letter-spacing: 0.1em;
+}
+.product-preview__body {
+  min-height: 0;
+  overflow: hidden;
+  padding: 16px 16px 24px;
+}
+.product-preview__image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: min(44dvh, 380px);
+  margin-inline: auto;
+  object-fit: contain;
+  border-radius: 10px;
+  background: var(--paper);
+}
+.product-preview__copy {
+  min-width: 0;
+}
+.product-preview__title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  margin: 20px 0 12px;
+  font-size: 1.5rem;
+  line-height: 1.4;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.product-preview__description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  margin: 0;
+  font-size: 1.125rem;
+  line-height: 1.7;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.product-preview-button:focus-visible {
+  outline: 2px solid var(--green-dark);
+  outline-offset: 3px;
+}
+.product-preview-button {
+  display: none;
+}
+/* Disable native image/link lift separately from selection and touch callouts.
+   Keep these scoped to preview targets; native scrolling and pinch zoom stay enabled. */
+[data-product-preview-hold],
+[data-product-preview-hold] *,
+.product-preview-layer,
+.product-preview-layer * {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+}
+@media (any-pointer: coarse) {
+  [data-product-preview-hold],
+  [data-product-preview-hold] *,
+  .product-preview-layer,
+  .product-preview-layer * {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .product-preview-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: var(--white);
+    color: var(--brown);
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    cursor: pointer;
+  }
+  .product-card__body > .product-preview-button {
+    align-self: flex-start;
+    margin-bottom: 12px;
+  }
+  .product-detail__media > .product-preview-button {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    z-index: 3;
+  }
+}
+@media (max-height: 640px) {
+  .product-preview__title,
+  .product-preview__description {
+    -webkit-line-clamp: 2;
+  }
+}
+@media (max-height: 500px) {
+  .product-preview[data-mode="details"] .product-preview__body {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: 16px;
+  }
+  .product-preview__title {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.125rem;
+  }
+  .product-preview__description {
+    font-size: 1rem;
+    line-height: 1.5;
+  }
+}
+@keyframes product-preview-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .product-preview {
+    animation: none;
+  }
+}

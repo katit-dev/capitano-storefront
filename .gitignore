@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors and OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+
+# TypeScript and test caches
+*.tsbuildinfo
+coverage/
+
+# Project-local temporary files
+tmp/
+output/image-tools/
+
+.vercel
+
+# Local catalog sources and asset preparation tools
+/output/
+/docs/
+/scripts/
+/paxmoly.xlsx
+
+# Public Vite configuration is included in the production image.
+!.env.production
