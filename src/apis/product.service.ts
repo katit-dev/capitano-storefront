@@ -1,4 +1,4 @@
-import { fetchCmsContent, type CatalogProduct, type CmsContent } from "@/hooks/data/useCmsContent";
+import type { CatalogProduct, CmsContent } from "@/hooks/data/useCmsContent";
 import type { Product, ProductBodyArea, ProductCategory, ProductSkinType } from "@/types/Product";
 
 export interface ProductFilters {
@@ -17,7 +17,7 @@ export function catalogProducts(content: Pick<CmsContent, "products" | "productT
     if (!Number.isFinite(price) || price < 0) return [];
     const category = content.productTypes?.find(type => type.id === row.categoryId);
     return [{
-      id: row.id, slug: row.slug, name: row.name, shortName: row.shortName || "",
+      id: row.id, slug: row.slug, sku: variant.sku || undefined, name: row.name, shortName: row.shortName || "",
       category: category?.code || "", categoryLabel: category?.name || "",
       skinTypes: row.suitableSkinTypes?.split(/[,;\n]/).map(value => value.trim()).filter(Boolean),
       concern: row.suitableSkinTypes || "", description: row.description || "",
@@ -30,14 +30,16 @@ export function catalogProducts(content: Pick<CmsContent, "products" | "productT
     }];
   });
 }
-export async function getProducts(filters: ProductFilters = {}, signal?: AbortSignal): Promise<Product[]> {
-  const { content } = await fetchCmsContent("shop", signal);
-  const term = filters.search?.trim().toLocaleLowerCase("vi") ?? "";
+const searchText = (value: string) =>
+  value.toLocaleLowerCase("vi").normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/đ/g, "d");
+
+export function filterProducts(content: CmsContent, filters: ProductFilters = {}): Product[] {
+  const term = searchText(filters.search?.trim() || "");
   const collection = content.productLines?.find(line => [line.id, line.slug, line.code].includes(filters.collection || ""));
   const products = catalogProducts(content).filter(product => {
     return (!filters.category || filters.category === "all" || product.category === filters.category)
       && (!filters.collection || Boolean(collection && product.productLineId === collection.id))
-      && (!term || [product.name, product.shortName, product.concern].some(value => value.toLocaleLowerCase("vi").includes(term)))
+      && (!term || [product.name, product.shortName, product.concern, product.sku || ""].some(value => searchText(value).includes(term)))
       && (!filters.concern || product.concern === filters.concern)
       && (!filters.skinType || Boolean(product.skinTypes?.includes(filters.skinType)))
       && (!filters.bodyArea || product.bodyArea === filters.bodyArea)
@@ -50,7 +52,4 @@ export async function getProducts(filters: ProductFilters = {}, signal?: AbortSi
   else if (filters.sort === "priceDesc") products.sort((a, b) => b.price - a.price);
   else products.sort((a, b) => Number(Boolean(b.isFeatured)) - Number(Boolean(a.isFeatured)));
   return products;
-}
-export async function getProductBySlug(slug: string, signal?: AbortSignal): Promise<Product | null> {
-  return (await getProducts({}, signal)).find(product => product.slug === slug) ?? null;
 }

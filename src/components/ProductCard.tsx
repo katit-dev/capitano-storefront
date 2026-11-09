@@ -52,7 +52,6 @@ export default function ProductCard({
         {discountPercent ? (
           <span className="product-card__sale">Giảm {discountPercent}%</span>
         ) : null}
-        <span className="product-card__watermark" aria-hidden="true">PAXMOLY</span>
         <img
           src={product.image}
           alt={product.name}

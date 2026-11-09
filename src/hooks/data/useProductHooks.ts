@@ -1,19 +1,13 @@
-import { useQuery } from "@tanstack/react-query";
-import { getProductBySlug, getProducts, type ProductFilters } from "@/apis/product.service";
+import { filterProducts, type ProductFilters } from "@/apis/product.service";
+import { useCmsContent } from "@/hooks/data/useCmsContent";
 
 export function useProducts(filters: ProductFilters = {}) {
-  return useQuery({
-    queryKey: ["products", filters],
-    queryFn: ({ signal }) => getProducts(filters, signal),
-    staleTime: 0, refetchInterval: 30_000, refetchOnWindowFocus: true,
-  });
+  const query = useCmsContent("shop");
+  const content = query.data?.content;
+  return { ...query, data: content ? filterProducts(content, filters) : undefined };
 }
 
 export function useProduct(slug?: string) {
-  return useQuery({
-    queryKey: ["products", slug],
-    queryFn: ({ signal }) => getProductBySlug(slug!, signal),
-    staleTime: 0, refetchInterval: 30_000, refetchOnWindowFocus: true,
-    enabled: Boolean(slug),
-  });
+  const query = useProducts();
+  return { ...query, data: query.data?.find(product => product.slug === slug) ?? null };
 }

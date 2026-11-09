@@ -2,7 +2,7 @@ import { useLayoutEffect, useSyncExternalStore } from "react";
 import type { CmsContent } from "./useCmsContent";
 const params = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
 export const previewEnabled = params?.get("cms-preview") === "1" && window.parent !== window;
-const code = import.meta.env.VITE_CMS_SITE_CODE || "paxmoly";
+const code = import.meta.env.VITE_CMS_SITE_CODE || "capitano";
 const adminOrigin = new URL(import.meta.env.VITE_CMS_ADMIN_URL || "http://localhost:5175").origin;
 type Snapshot = { content: CmsContent; module: string; draftId: string };
 let snapshot: Snapshot | null = null;

@@ -1,5 +1,3 @@
-import cicaBanner from "@/assets/collections/cica-banner-v2.png";
-import { NEWS_PRODUCT_IMAGES } from "@/data/news-product-images";
 import { NEWS_CATEGORIES } from "@/config/routes.config";
 
 export type NewsCategory = (typeof NEWS_CATEGORIES)[number]["value"];
@@ -9,9 +7,6 @@ export interface NewsArticle {
   title: string;
   description: string;
   intro: string;
-  image: string;
-  imageAlt: string;
-  imageStyle: "banner" | "product";
   published: string;
   sections: {
     id: string;
@@ -25,8 +20,6 @@ export interface NewsArticle {
   note?: string;
 }
 
-const image = (id: string) =>
-  NEWS_PRODUCT_IMAGES[id];
 const testingSource = {
   title: "American Academy of Dermatology: How to test skin care products",
   url: "https://www.aad.org/public/everyday-care/skin-care-secrets/prevent-skin-problems/test-skin-care-products/",
@@ -40,7 +33,7 @@ const maskSource = {
   url: "https://www.aad.org/public/everyday-care/skin-care-secrets/routine/facial-masks-and-skin-care",
 };
 const productNote =
-  "Bài viết tổng hợp thông tin trong danh mục sản phẩm PaxMoly hiện có, không phải đánh giá sau thử nghiệm thực tế. Hình ảnh minh họa có hỗ trợ AI. Thành phần đầy đủ và hướng dẫn trên bao bì của sản phẩm bạn nhận được là thông tin cần đối chiếu trước khi dùng.";
+  "Bài viết tổng hợp thông tin trong danh mục sản phẩm PaxMoly hiện có, không phải đánh giá sau thử nghiệm thực tế. Thành phần đầy đủ và hướng dẫn trên bao bì của sản phẩm bạn nhận được là thông tin cần đối chiếu trước khi dùng.";
 
 export const NEWS_ARTICLES: NewsArticle[] = [
   {
@@ -51,10 +44,6 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "Khám phá 5 sản phẩm thuộc dòng CICA PaxMoly: sữa rửa mặt, toner, serum, kem dưỡng và mặt nạ rau má. Chọn từng bước theo nhu cầu của bạn.",
     intro:
       "CICA là tên dòng sản phẩm rau má đang được giới thiệu tại cửa hàng PaxMoly Vietnam. Bộ sưu tập hiện có năm lựa chọn, từ làm sạch đến dưỡng ẩm. Bạn có thể tìm hiểu từng món trước khi quyết định bổ sung bước nào vào chu trình đang dùng.",
-    image: cicaBanner,
-    imageAlt:
-      "Năm sản phẩm CICA PaxMoly: sữa rửa mặt, toner, serum, kem dưỡng và mặt nạ rau má",
-    imageStyle: "banner",
     published: "2026-10-05",
     sections: [
       {
@@ -131,9 +120,6 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "Hiểu vai trò của làm sạch, toner, serum, kem dưỡng và chống nắng để xây dựng chu trình chăm sóc da đơn giản, không thêm bước chỉ vì trào lưu.",
     intro:
       "Một chu trình chăm sóc da dễ duy trì không nhất thiết có nhiều bước. Trước khi hỏi toner hay serum dùng trước, hãy xác định các bước cơ bản bạn đã có và đọc hướng dẫn của từng sản phẩm. Thứ tự tham khảo dưới đây dành cho mỹ phẩm chăm sóc thông thường, không thay cho hướng dẫn dùng thuốc.",
-    image: image("serum-hyaluronic"),
-    imageAlt: "Serum PaxMoly Hyaluronic Acid 10% + B5 trong chu trình dưỡng ẩm",
-    imageStyle: "product",
     published: "2026-10-05",
     sections: [
       {
@@ -197,10 +183,6 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "Những điều cần kiểm tra khi chọn mỹ phẩm cho da nhạy cảm: nhãn thành phần, thử trên vùng nhỏ và phân biệt thử tại nhà với patch test y khoa.",
     intro:
       "Nhãn “cho da nhạy cảm”, tên CICA hoặc chiết xuất thiên nhiên không bảo đảm rằng một mỹ phẩm phù hợp với mọi người. Khi đổi sản phẩm, việc đọc nhãn và thử trước giúp bạn đưa ra lựa chọn thận trọng hơn, thay vì chỉ dựa vào một lời giới thiệu.",
-    image: image("cleanser-cica"),
-    imageAlt:
-      "Perfect Cica Foam Cleanser PaxMoly, sản phẩm cần đối chiếu nhãn trước khi dùng",
-    imageStyle: "product",
     published: "2026-10-05",
     sections: [
       {
@@ -259,9 +241,6 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "So sánh mặt nạ CICA, Hyaluronic Acid và Retinol PaxMoly theo thông tin danh mục. Đọc nhãn, thời gian đắp và vai trò của mặt nạ trong routine.",
     intro:
       "Mặt nạ giấy là một bước bổ sung, không phải món bắt buộc trong mọi chu trình. Khi chọn mặt nạ PaxMoly, bạn nên bắt đầu từ nhu cầu hiện tại, thông tin thành phần và hướng dẫn trên gói thay vì chọn theo màu bao bì hoặc tên hoạt chất đang phổ biến.",
-    image: image("mask-cica"),
-    imageAlt: "Gói mặt nạ rau má Real Cica Mask Pack PaxMoly",
-    imageStyle: "product",
     published: "2026-10-05",
     sections: [
       {
@@ -324,9 +303,6 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "Thông tin serum PaxMoly Hyaluronic Acid 10% + B5: dung tích 30 ml, thành phần nổi bật và những điểm cần kiểm tra trước khi thêm vào routine.",
     intro:
       "Hyaluronic Acid 10% + B5 Serum là một lựa chọn trong nhóm tinh chất dưỡng ẩm của PaxMoly. Bài viết này giúp bạn đọc thông tin sản phẩm và so sánh với nhu cầu đang có; đây không phải review về kết quả sau một thời gian sử dụng.",
-    image: image("serum-hyaluronic"),
-    imageAlt: "Hộp và chai Hyaluronic Acid 10% + B5 Serum PaxMoly 30 ml",
-    imageStyle: "product",
     published: "2026-10-05",
     sections: [
       {
@@ -391,10 +367,6 @@ export const NEWS_ARTICLES: NewsArticle[] = [
       "Perfect Cica Foam Cleanser PaxMoly: sữa rửa mặt rau má 100 ml, thành phần được giới thiệu và các thông tin cần đối chiếu trên nhãn trước khi mua.",
     intro:
       "Perfect Cica Foam Cleanser là sữa rửa mặt thuộc dòng CICA PaxMoly. Trước khi cân nhắc một sản phẩm làm sạch mới, hãy xem tên đầy đủ, quy cách và nhãn thành phần. Bài viết này tổng hợp thông tin danh mục, không mô tả trải nghiệm sau thử nghiệm thực tế.",
-    image: image("cleanser-cica"),
-    imageAlt:
-      "Tuýp sữa rửa mặt rau má Perfect Cica Foam Cleanser PaxMoly 100 ml",
-    imageStyle: "product",
     published: "2026-10-05",
     sections: [
       {
@@ -456,10 +428,6 @@ export const NEWS_ARTICLES: NewsArticle[] = [
 export function getNewsCategory(value: string) {
   return NEWS_CATEGORIES.find((category) => category.value === value);
 }
-
-export const hasNewsPicareStamp = (article: NewsArticle) =>
-  article.imageStyle === "banner" ||
-  Object.entries(NEWS_PRODUCT_IMAGES).some(([id, image]) => id.endsWith("-cica") && image === article.image);
 
 export function getArticleReadMinutes(article: NewsArticle) {
   const text = [

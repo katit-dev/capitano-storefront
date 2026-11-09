@@ -3,7 +3,7 @@ import { FiInstagram, FiShoppingBag, FiX } from "react-icons/fi";
 import { FaFacebookF, FaTiktok } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import picareLogo from "@/assets/brand/picare-logo-green-transparent.png";
-import paxmolyLogo from "@/assets/brand/paxmoly-logo.png";
+import capitanoLogo from "@/assets/brand/capitano-logo.png";
 import { CONTACT } from "@/config/contact";
 import { PATHS } from "@/config/paths";
 import CmsLink from "@/components/CmsLink";
@@ -41,7 +41,7 @@ export default function SiteFooter() {
           <Link
             to={PATHS.HOME}
             className="site-footer__logo"
-            aria-label="Picare — PaxMoly Việt Nam"
+            aria-label="Picare — Pasta del Capitano Việt Nam"
           >
             <img
               src={picareLogo}
@@ -53,13 +53,13 @@ export default function SiteFooter() {
           </Link>
           <Link
             to={PATHS.HOME}
-            className="site-footer__paxmoly-logo"
-            aria-label="PaxMoly — Trang chủ"
+            className="site-footer__capitano-logo"
+            aria-label="Pasta del Capitano — Trang chủ"
           >
-            <img src={paxmolyLogo} alt="PaxMoly" width="375" height="188" loading="lazy" />
+            <img src={capitanoLogo} alt="Pasta del Capitano" width="448" height="233" loading="lazy" />
           </Link>
           <p className="site-footer__intro">
-            Pax Moly - Đánh thức vẻ đẹp làn da từ thiên nhiên.
+            Pasta del Capitano · Chăm sóc răng miệng từ Ý.
           </p>
           <div className="site-footer__social-links" aria-label="Kênh kết nối">
             <button
@@ -88,8 +88,8 @@ export default function SiteFooter() {
             </button>
             <Link
               to={PATHS.SHOP}
-              aria-label="Cửa hàng PaxMoly"
-              title="Cửa hàng PaxMoly"
+              aria-label="Cửa hàng Capitano"
+              title="Cửa hàng Capitano"
             >
               <FiShoppingBag />
             </Link>
@@ -161,7 +161,7 @@ export default function SiteFooter() {
       </div>
 
       <div className="container-wide site-footer__bottom">
-        <span>© {new Date().getFullYear()} PaxMoly Vietnam</span>
+        <span>© {new Date().getFullYear()} Pasta del Capitano Việt Nam</span>
         <span>Picare · Do More For A Better Life</span>
       </div>
 

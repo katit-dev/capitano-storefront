@@ -5,6 +5,7 @@ export type ProductBodyArea = "hands" | "body";
 export interface Product {
   id: string;
   slug: string;
+  sku?: string;
   name: string;
   shortName: string;
   category: ProductCategory;

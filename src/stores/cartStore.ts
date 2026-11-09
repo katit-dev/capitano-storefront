@@ -9,14 +9,14 @@ export const cartCountAtom = atom((get) =>
   get(cartItemsAtom).reduce((total, item) => total + item.quantity, 0),
 );
 
-export const addToCartAtom = atom(null, (get, set, productId: string) => {
+export const addToCartAtom = atom(null, (get, set, productId: string, quantity: number = 1) => {
   const current = get(cartItemsAtom);
   const existing = current.find((item) => item.productId === productId);
   set(
     cartItemsAtom,
     existing
-      ? current.map((item) => item.productId === productId ? { ...item, quantity: item.quantity + 1 } : item)
-      : [...current, { productId, quantity: 1 }],
+      ? current.map((item) => item.productId === productId ? { ...item, quantity: item.quantity + quantity } : item)
+      : [...current, { productId, quantity }],
   );
   set(cartDrawerOpenAtom, true);
 });

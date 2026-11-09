@@ -1,5 +1,6 @@
 import { FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
+import frescoBanner from "@/assets/collections/capitano-fresco-banner-17.png";
 import ProductCard from "@/components/ProductCard";
 import StoreAssurance from "@/components/StoreAssurance";
 import { PATHS } from "@/config/paths";
@@ -14,13 +15,36 @@ export default function HomePage() {
   if (!content) return <div className="detail-loading" role="status" aria-label="Đang tải nội dung CMS" />;
   const products = catalogProducts(content);
   const featured = products.filter(product => product.isFeatured);
+  const fresco = cms.isLocal ? products.find(product => product.sku === "CAP018") : undefined;
   return <>
-    {content.banners?.map(item => <CmsBanner key={item.id} item={item} />)}
+    {fresco ? (
+      <section className="capitano-hero" aria-labelledby="capitano-hero-title">
+        <div className="container-wide capitano-hero__layout">
+          <img
+            className="capitano-hero__banner"
+            src={frescoBanner}
+            alt="Banner Fresco của Pasta del Capitano với chai xịt và lá bạc hà"
+            width="1983"
+            height="793"
+            fetchPriority="high"
+          />
+          <div className="capitano-hero__copy">
+            <h1 id="capitano-hero-title">Xịt thơm miệng Fresco</h1>
+            <div className="capitano-hero__actions">
+              <Link className="button button--primary" to={PATHS.product(fresco.slug)}>
+                Xem Fresco <FiArrowRight aria-hidden="true" />
+              </Link>
+              <Link className="text-link" to={PATHS.SHOP}>Tất cả sản phẩm</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    ) : content.banners?.map(item => <CmsBanner key={item.id} item={item} />)}
     <CmsFlashSales items={content.flashSales} productTypes={content.productTypes} />
-    <StoreAssurance />
+    {!cms.isLocal && <StoreAssurance />}
     {featured.length > 0 && <section className="section best-seller-section" id="ban-chay"><div className="container-wide">
       <div className="commerce-heading"><h2>Sản phẩm nổi bật</h2><Link className="text-link" to={PATHS.SHOP}>Xem sản phẩm <FiArrowRight /></Link></div>
-      <div className="product-grid">{featured.map(product => <ProductCard key={product.id} product={product} />)}</div>
+      <div className="product-grid product-grid--featured">{featured.map(product => <ProductCard key={product.id} product={product} />)}</div>
     </div></section>}
     <CmsSkinNeeds section={content.skinNeedSection} items={content.skinNeeds} />
     {content.featuredLines?.map(item => {

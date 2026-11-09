@@ -129,8 +129,8 @@ export default function ShopPage() {
   };
 
   return (
-    <div className="shop-page">
-      {hero && <section className="shop-hero"><div className="container-wide shop-hero__inner"><div><p className="eyebrow eyebrow--line">{hero.subtitle}</p><h1>{hero.titleLine1}<br /><em>{hero.titleLine2}</em></h1></div><p>{hero.description}</p></div></section>}
+    <div className={cms.isLocal ? "shop-page shop-page--local" : "shop-page"}>
+      {hero && <section className="shop-hero"><div className="container-wide shop-hero__inner"><div><p className="eyebrow eyebrow--line">{hero.subtitle}</p><h1>{hero.titleLine1}{hero.titleLine2 && <><br /><em>{hero.titleLine2}</em></>}</h1></div><p>{hero.description}</p></div></section>}
 
       <section className="section shop-content">
         <div className="container-wide">
@@ -160,34 +160,46 @@ export default function ShopPage() {
                     {BODY_AREAS.length > 0 && <label className="shop-filter-field">Vùng da
                       <select value={draftBodyArea} onChange={(event) => setDraftBodyArea(event.target.value as ProductBodyArea | "")}><option value="">Tất cả vùng da</option>{BODY_AREAS.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select>
                     </label>}
-                    <label className="shop-filter-field">Nhu cầu da
+                    {concerns.length > 0 && <label className="shop-filter-field">Nhu cầu da
                       <select value={draftConcern} onChange={(event) => setDraftConcern(event.target.value)}><option value="">Tất cả nhu cầu</option>{concerns.map((item) => <option key={item} value={item}>{item}</option>)}</select>
-                    </label>
+                    </label>}
                     <div className="shop-filter-price" role="group" aria-label="Khoảng giá">
                       <strong>Khoảng giá</strong>
                       <label>Giá từ <span>{formatPrice(draftMinPrice)}</span><input type="range" aria-label="Giá tối thiểu" min="0" max={MAX_PRICE} step="1000" value={draftMinPrice} onChange={(event) => setDraftMinPrice(Math.min(Number(event.target.value), draftMaxPrice))} /></label>
                       <label>Đến <span>{formatPrice(draftMaxPrice)}</span><input type="range" aria-label="Giá tối đa" min="0" max={MAX_PRICE} step="1000" value={draftMaxPrice} onChange={(event) => setDraftMaxPrice(Math.max(Number(event.target.value), draftMinPrice))} /></label>
                     </div>
                     <label className="shop-filter-field">Sắp xếp
-                      <select value={draftSort} onChange={(event) => setDraftSort(event.target.value as SortOrder)}><option value="featured">Nổi bật</option><option value="bestSeller">Bán chạy</option><option value="newest">Mới nhất</option><option value="priceAsc">Giá thấp đến cao</option><option value="priceDesc">Giá cao đến thấp</option></select>
+                      <select value={draftSort} onChange={(event) => setDraftSort(event.target.value as SortOrder)}><option value="featured">Nổi bật</option>{!cms.isLocal && <><option value="bestSeller">Bán chạy</option><option value="newest">Mới nhất</option></>}<option value="priceAsc">Giá thấp đến cao</option><option value="priceDesc">Giá cao đến thấp</option></select>
                     </label>
-                    <label className="shop-filter-discount"><input type="checkbox" checked={draftDiscountOnly} onChange={(event) => setDraftDiscountOnly(event.target.checked)} /> Đang giảm giá</label>
+                    {!cms.isLocal && <label className="shop-filter-discount"><input type="checkbox" checked={draftDiscountOnly} onChange={(event) => setDraftDiscountOnly(event.target.checked)} /> Đang giảm giá</label>}
                     <div className="shop-filter-actions"><button type="button" onClick={clearFilters}>Xóa bộ lọc</button><button type="button" onClick={applyFilters}>Áp dụng</button></div>
                   </div>
                 ) : null}
               </div>
-              <div className="shop-sort-buttons" role="group" aria-label="Sắp xếp nhanh">
+              {!cms.isLocal && <div className="shop-sort-buttons" role="group" aria-label="Sắp xếp nhanh">
                 {([{ value: "bestSeller", label: "Bán chạy" }, { value: "newest", label: "Mới nhất" }] as const).map(option => <button key={option.value} type="button" className="shop-sort-button" aria-pressed={sort === option.value} onClick={() => { const next = sort === option.value ? "featured" : option.value; setSort(next); setDraftSort(next); }}>{option.label}</button>)}
-              </div>
+              </div>}
             </div>
             <div className="shop-search">
               <FiSearch aria-hidden="true" />
               <label className="sr-only" htmlFor="product-search">Tìm sản phẩm</label>
-              <input ref={searchRef} id="product-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Tìm theo tên hoặc nhu cầu da" />
+              <input ref={searchRef} id="product-search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder={cms.isLocal ? "Tìm theo tên hoặc mã sản phẩm" : "Tìm theo tên hoặc nhu cầu da"} />
               {search ? <button type="button" onClick={() => setSearch("")} aria-label="Xóa tìm kiếm"><FiX /></button> : null}
             </div>
           </div>
 
+          {cms.isLocal && <div className="category-tabs" role="group" aria-label="Danh mục sản phẩm">
+            {categories.map(item => (
+              <button
+                key={item.value}
+                type="button"
+                aria-pressed={category === item.value && (item.value !== "all" || !collection)}
+                onClick={() => changeCategory(item.value, "", "", "", "")}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>}
           {(collection || category !== "all" || skinType || bodyArea || concern) && <p className="shop-selection-label">Đang xem: {[collection?.name, category !== "all" ? categories.find((item) => item.value === category)?.label : null, SKIN_TYPES.find((item) => item.value === skinType)?.label, BODY_AREAS.find((item) => item.value === bodyArea)?.label, concern].filter(Boolean).join(" · ")}</p>}
           <div className="shop-result-meta" data-template-fixed="shop-result-meta">
             <p aria-live="polite"><FiSliders /> {query.isLoading ? "Đang lọc sản phẩm…" : `${query.data?.length ?? 0} sản phẩm`}</p>
@@ -195,12 +207,12 @@ export default function ShopPage() {
 
           {query.isLoading ? (
             <div className="product-grid" aria-label="Đang tải sản phẩm">{Array.from({ length: 8 }, (_, index) => <div className="product-skeleton" key={index} />)}</div>
-          ) : query.isError || cms.isError ? (
-            <div className="empty-state" role="alert"><h2>Không thể tải sản phẩm từ CMS</h2><button className="button button--outline" type="button" onClick={() => { void query.refetch(); void cms.refetch(); }}>Thử lại</button></div>
+          ) : query.isError ? (
+            <div className="empty-state" role="alert"><h2>Không thể tải sản phẩm</h2><button className="button button--outline" type="button" onClick={() => void query.refetch()}>Thử lại</button></div>
           ) : query.data?.length ? (
             <div className="product-grid product-grid--shop">{query.data.map((product) => <ProductCard key={product.id} product={product} />)}</div>
           ) : (
-            <div className="empty-state"><span><FiSearch /></span><h2>{catalog.length ? "Chưa tìm thấy sản phẩm phù hợp" : "Chưa có sản phẩm được xuất bản"}</h2><p>{catalog.length ? "Thử lựa chọn lọc khác hoặc xem lại tất cả sản phẩm PaxMoly." : "Sản phẩm sẽ xuất hiện khi được thêm và xuất bản trong DB của website."}</p><button className="button button--outline" type="button" onClick={clearFilters}>Xem tất cả</button></div>
+            <div className="empty-state"><span><FiSearch /></span><h2>{catalog.length ? "Chưa tìm thấy sản phẩm phù hợp" : "Chưa có sản phẩm được xuất bản"}</h2><p>{catalog.length ? "Thử lựa chọn lọc khác hoặc xem lại tất cả sản phẩm Capitano." : "Sản phẩm sẽ xuất hiện khi được thêm và xuất bản trong DB của website."}</p><button className="button button--outline" type="button" onClick={clearFilters}>Xem tất cả</button></div>
           )}
         </div>
       </section>

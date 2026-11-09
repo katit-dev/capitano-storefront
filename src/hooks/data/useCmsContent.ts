@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { capitanoContent } from "@/data/capitano-catalog";
 import type { NavigationItem } from "@/config/routes.config";
 import { previewEnabled, usePreviewSnapshot } from "./cmsPreview";
 export type CmsItem = {
@@ -28,7 +29,7 @@ export type CmsContent = {
 };
 type Envelope<T> = { success: boolean; data: T; message?: string };
 const base = (import.meta.env.VITE_CMS_API_URL || "").replace(/\/$/, "");
-const code = import.meta.env.VITE_CMS_SITE_CODE || "paxmoly";
+const code = import.meta.env.VITE_CMS_SITE_CODE || "capitano";
 export const cmsEnabled = Boolean(base);
 const endpoint = `${base}/api/public/v1/sites/${encodeURIComponent(code)}`;
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -38,15 +39,27 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   if (!result.success) throw new Error(result.message || "Yêu cầu chưa thành công.");
   return result.data;
 }
-export function fetchCmsContent(page: "home" | "shop", signal?: AbortSignal) {
-  if (!cmsEnabled) return Promise.reject(new Error("Chưa cấu hình kết nối CMS."));
-  return request<{ content: CmsContent }>(page, { signal });
-}
+const localData = { content: capitanoContent };
+
 export function useCmsContent(page: "home" | "shop") {
   const preview = usePreviewSnapshot();
-  const query = useQuery({ queryKey: ["cms", base, code, page], queryFn: ({ signal }) => fetchCmsContent(page, signal),
-    enabled: !previewEnabled && cmsEnabled && typeof window !== "undefined", staleTime: 0, refetchInterval: previewEnabled ? false : 30_000, refetchOnWindowFocus: true });
-  return previewEnabled && preview ? { ...query, data: { content: preview.content }, isPending: false, isError: false } : query;
+  const query = useQuery({
+    queryKey: ["cms", base, code, page],
+    queryFn: ({ signal }) => request<{ content: CmsContent }>(page, { signal }),
+    enabled: !previewEnabled && cmsEnabled && typeof window !== "undefined",
+    staleTime: 0,
+    retry: false,
+    refetchInterval: cmsEnabled && !previewEnabled ? 30_000 : false,
+    refetchOnWindowFocus: true,
+  });
+
+  if (previewEnabled && preview) {
+    return { ...query, data: { content: preview.content }, isPending: false, isLoading: false, isError: false, isLocal: false };
+  }
+  if (!previewEnabled && (!cmsEnabled || (query.isError && !query.data))) {
+    return { ...query, data: localData, isPending: false, isLoading: false, isError: false, isLocal: true };
+  }
+  return { ...query, isError: query.isError && !query.data, isLocal: false };
 }
 export function subscribeNewsletter(email: string) {
   if (previewEnabled) return Promise.reject(new Error("Form đăng ký chỉ hoạt động trên website thật."));

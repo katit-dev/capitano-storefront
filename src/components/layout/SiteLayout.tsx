@@ -15,7 +15,7 @@ import { cartItemsAtom, cartDrawerOpenAtom } from "@/stores/cartStore";
 
 import { useCmsContent, menuTree, recordSiteVisit } from "@/hooks/data/useCmsContent";
 import CmsLink from "@/components/CmsLink";
-import { usePreviewFocus } from "@/hooks/data/cmsPreview";
+import { previewEnabled, usePreviewFocus } from "@/hooks/data/cmsPreview";
 
 export default function SiteLayout() {
   usePreviewFocus();
@@ -23,7 +23,16 @@ export default function SiteLayout() {
   const content = cms.data?.content;
   const header = content?.header;
   const announcement = content?.announcement;
-  const navigation = menuTree(content?.menu || []);
+  const showLocalHeader = !previewEnabled && !content;
+  const localHeader = cms.isLocal || showLocalHeader;
+  const navigation = showLocalHeader
+    ? [
+        { label: "Trang chủ", to: PATHS.HOME },
+        { label: "Tất cả sản phẩm", to: PATHS.SHOP },
+      ]
+    : menuTree(content?.menu || []);
+  const logoSrc = header?.logoUrl || undefined;
+  const logoAlt = logoSrc ? header?.logoAlt || "Pasta del Capitano" : undefined;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDialogElement>(null);
   const location = useLocation();
@@ -66,10 +75,10 @@ export default function SiteLayout() {
     <div id="site-shell-root" className="site-shell">
       <a className="skip-link" href="#main-content">Đi tới nội dung chính</a>
       {announcement && <div className="announcement"><span className="announcement__primary">{announcement.message}</span><span className="picare-signature"><span>{announcement.partnerLabel}</span>{announcement.partnerLogoUrl && <CmsLink to={announcement.partnerLinkUrl || "#"} className={`picare-signature__mark${announcement.partnerLogoUrl.split("?")[0].endsWith("/7db24069-c674-4d32-afc2-3c3d80bc9d35.png") ? " picare-signature__mark--padded" : ""}`}><img src={announcement.partnerLogoUrl} alt={announcement.partnerLogoAlt || ""} /></CmsLink>}</span></div>}
-      {header && <header className="site-header" data-template-fixed="site-header">
+      {(header || showLocalHeader) && <header className={localHeader ? "site-header site-header--local" : "site-header"} data-template-fixed="site-header">
         <div className="site-header__inner container-wide">
           <button className="header-action header-action--menu" type="button" onClick={() => setMenuOpen(true)} aria-label="Mở menu" aria-expanded={menuOpen} aria-controls="mobile-navigation-dialog"><FiMenu /></button>
-          <CmsLink to={header?.logoLinkUrl || PATHS.HOME} className="header-logo" aria-label="PaxMoly - Trang chủ">{header?.logoUrl && <BrandLogo src={header.logoUrl} alt={header.logoAlt || ""} />}</CmsLink>
+          <CmsLink to={header?.logoLinkUrl || PATHS.HOME} className="header-logo" aria-label={`${logoAlt || "Pasta del Capitano"} - Trang chủ`}><BrandLogo src={logoSrc} alt={logoAlt} /></CmsLink>
           <SiteNavigation items={navigation} />
           <div className="header-actions">
             {(header?.showHotline && header.hotlineNumber) && <a className="header-hotline" href={`tel:${(header.hotlineNumber || "").replace(/[^+0-9]/g, "")}`}>
@@ -77,8 +86,10 @@ export default function SiteLayout() {
               <span>{header.hotlineLabel} <strong>{header.hotlineNumber}</strong></span>
             </a>}
             <NavLink className="header-action header-action--search" to={`${PATHS.SHOP}?focus=search`} aria-label="Tìm kiếm"><FiSearch /></NavLink>
-            <button className="header-action header-action--desktop" type="button" aria-label="Tài khoản"><FiUser /></button>
-            <button className="header-action header-action--desktop" type="button" aria-label="Sản phẩm yêu thích"><FiHeart /></button>
+            {!localHeader && <>
+              <button className="header-action header-action--desktop" type="button" aria-label="Tài khoản"><FiUser /></button>
+              <button className="header-action header-action--desktop" type="button" aria-label="Sản phẩm yêu thích"><FiHeart /></button>
+            </>}
             {header?.showCart && <button className="header-action header-cart" type="button" onClick={() => setCartOpen(true)} aria-label={`Giỏ hàng, ${cartCount} sản phẩm`}>
               <FiShoppingBag />
               {cartCount ? <span>{cartCount}</span> : null}
@@ -89,7 +100,7 @@ export default function SiteLayout() {
 
       <dialog ref={menuRef} id="mobile-navigation-dialog" className={menuOpen ? "mobile-menu is-open" : "mobile-menu"} aria-label="Menu chính" onClose={() => setMenuOpen(false)}>
         <div className="mobile-menu__top">
-          {header?.logoUrl && <BrandLogo compact src={header.logoUrl} alt={header.logoAlt || ""} />}
+          <BrandLogo compact src={logoSrc} alt={logoAlt} />
           <button className="icon-button icon-button--light" type="button" onClick={() => setMenuOpen(false)} autoFocus aria-label="Đóng menu"><FiX /></button>
         </div>
         <SiteNavigation mobile items={navigation} onNavigate={() => setMenuOpen(false)} />

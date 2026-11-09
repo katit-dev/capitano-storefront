@@ -14,9 +14,8 @@ import ProductCard from "@/components/ProductCard";
 import ProductFormulaTabs from "@/components/ProductFormulaTabs";
 import { useProductPreview } from "@/hooks/useProductPreview";
 import { PATHS } from "@/config/paths";
-import { useProducts } from "@/hooks/data/useProductHooks";
-import { useProduct } from "@/hooks/data/useProductHooks";
-import { addToCartAtom, updateCartQuantityAtom } from "@/stores/cartStore";
+import { useProduct, useProducts } from "@/hooks/data/useProductHooks";
+import { addToCartAtom } from "@/stores/cartStore";
 import { getDiscountPercent } from "@/utils/pricing";
 
 const price = new Intl.NumberFormat("vi-VN", {
@@ -30,9 +29,9 @@ export default function ProductDetailPage() {
   const { slug } = useParams();
   const query = useProduct(slug);
   const preview = useProductPreview(query.data ?? undefined);
-  const [quantity, setQuantity] = useState(1);
+  const [selection, setSelection] = useState({ slug, quantity: 1 });
+  const quantity = selection.slug === slug ? selection.quantity : 1;
   const addToCart = useSetAtom(addToCartAtom);
-  const updateQuantity = useSetAtom(updateCartQuantityAtom);
 
   if (query.isLoading)
     return <div className="detail-loading" aria-label="Đang tải sản phẩm" />;
@@ -55,34 +54,33 @@ export default function ProductDetailPage() {
   const related = (catalog.data || []).filter(
     (item) => item.category === product.category && item.id !== product.id,
   ).slice(0, 3);
-  const handleAdd = () => {
-    addToCart(product.id);
-    if (quantity > 1) updateQuantity({ productId: product.id, quantity });
-  };
-
   return (
-    <div className="product-detail-page">
+    <div className={query.isLocal ? "product-detail-page product-detail-page--local" : "product-detail-page"}>
       <div className="container-wide product-detail">
+        {query.isLocal && (
+          <Link to={PATHS.SHOP} className="product-detail__back">
+            <FiArrowLeft aria-hidden="true" /> Tất cả sản phẩm
+          </Link>
+        )}
         <div
           className="product-detail__media"
           style={{ "--product-tone": product.tone } as React.CSSProperties}
         >
-          <Link to={PATHS.SHOP} className="back-link">
-            <FiArrowLeft /> Cửa hàng
-          </Link>
+          {!query.isLocal && <Link to={PATHS.SHOP} className="back-link">
+            <FiArrowLeft aria-hidden="true" /> Cửa hàng
+          </Link>}
           {product.badge ? (
             <span className="product-detail__badge">{product.badge}</span>
           ) : null}
           <img src={product.image} alt={product.name} {...preview.imageHold} />
           <button type="button" className="product-preview-button" aria-label={`Giữ để xem ảnh ${product.name}`} {...preview.imageHold} onClick={event => event.preventDefault()}><FiZoomIn aria-hidden="true" /> Giữ để xem</button>
-          <span className="product-detail__watermark">PAXMOLY</span>
         </div>
         <div className="product-detail__content">
           <p className="eyebrow">
             {product.categoryLabel} · {product.volume}
           </p>
           <h1>{product.name}</h1>
-          <p className="product-detail__subtitle">{product.shortName}</p>
+          {product.shortName && product.shortName !== product.volume && <p className="product-detail__subtitle">{product.shortName}</p>}
           <div className="product-detail__price">
             <strong>{price.format(product.price)}</strong>
             {discountPercent && product.compareAtPrice ? (
@@ -100,25 +98,29 @@ export default function ProductDetailPage() {
           </div>
           <p className="product-detail__description">{product.description}</p>
 
-          <div className="ingredient-row">
-            {product.ingredients.map((ingredient) => (
-              <span key={ingredient}>{ingredient}</span>
-            ))}
-          </div>
+          {product.ingredients.length > 0 && (
+            <div className="ingredient-row">
+              {product.ingredients.map((ingredient) => (
+                <span key={ingredient}>{ingredient}</span>
+              ))}
+            </div>
+          )}
 
-          <ul className="benefit-list">
-            {product.benefits.map((benefit) => (
-              <li key={benefit}>
-                <FiCheck /> {benefit}
-              </li>
-            ))}
-          </ul>
+          {product.benefits.length > 0 && (
+            <ul className="benefit-list">
+              {product.benefits.map((benefit) => (
+                <li key={benefit}>
+                  <FiCheck aria-hidden="true" /> {benefit}
+                </li>
+              ))}
+            </ul>
+          )}
 
           <div className="product-detail__buy">
             <div className="quantity-control quantity-control--large">
               <button
                 type="button"
-                onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+                onClick={() => setSelection({ slug, quantity: Math.max(1, quantity - 1) })}
                 aria-label="Giảm số lượng"
               >
                 <FiMinus />
@@ -126,7 +128,7 @@ export default function ProductDetailPage() {
               <span>{quantity}</span>
               <button
                 type="button"
-                onClick={() => setQuantity((value) => value + 1)}
+                onClick={() => setSelection({ slug, quantity: quantity + 1 })}
                 aria-label="Tăng số lượng"
               >
                 <FiPlus />
@@ -135,13 +137,13 @@ export default function ProductDetailPage() {
             <button
               className="button button--primary button--buy"
               type="button"
-              onClick={handleAdd}
+              onClick={() => addToCart(product.id, quantity)}
             >
               Thêm vào giỏ · {price.format(product.price * quantity)}
             </button>
           </div>
 
-          <div className="product-detail__assurance">
+          {!query.isLocal && <div className="product-detail__assurance">
             <div>
               <FiTruck />
               <span>
@@ -154,20 +156,20 @@ export default function ProductDetailPage() {
                 <strong>Sản phẩm chính hãng</strong>Phân phối độc quyền bởi Picare
               </span>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
 
-      {(product.description.trim() || product.ingredients.some(value => value.trim()) || product.usageInstructions?.trim() || product.benefits.some(value => value.trim())) && <section
+      {(product.description.trim() || product.ingredients.some(value => value.trim()) || product.fullIngredients?.trim() || product.usageInstructions?.trim() || product.benefits.some(value => value.trim())) && <section
         className="formula-story"
         style={{ "--product-tone": product.tone } as React.CSSProperties}
       >
-        <span className="formula-story__wordmark" aria-hidden="true">
+        {!query.isLocal && <span className="formula-story__wordmark" aria-hidden="true">
           ACTIVE FORMULA
-        </span>
+        </span>}
         <div className="container-wide formula-story__grid">
           <ProductFormulaTabs key={product.id} product={product} />
-          <div className="formula-story__visual">
+          {!query.isLocal && <div className="formula-story__visual">
             <div className="formula-story__orbit" aria-hidden="true" />
             <img
               src={product.image}
@@ -177,7 +179,7 @@ export default function ProductDetailPage() {
             <span className="formula-story__note formula-story__note--bottom">
               CONCENTRATED · DAILY CARE
             </span>
-          </div>
+          </div>}
         </div>
       </section>}
 

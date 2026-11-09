@@ -54,7 +54,7 @@ export default function CartDrawer() {
           >
             <header className="cart-drawer__header" data-template-fixed="cart-header">
               <div>
-                <p className="eyebrow">PaxMoly cart</p>
+                <p className="eyebrow">Pasta del Capitano</p>
                 <h2 id="cart-title">Giỏ hàng của bạn</h2>
               </div>
               <button className="icon-button" type="button" onClick={() => setOpen(false)} aria-label="Đóng giỏ hàng">

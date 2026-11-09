@@ -15,19 +15,19 @@ export default function ProductFormulaTabs({ product }: { product: Product }) {
   const [activeTab, setActiveTab] = useState<FormulaTabId>("overview");
   const id = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const keyIngredients = product.ingredients.map(value => value.trim()).filter(Boolean).join("\n\n");
   const content: Record<FormulaTabId, string> = {
     overview: product.description.trim(),
-    ingredients: product.ingredients
-      .map((value) => value.trim())
-      .filter(Boolean)
-      .join("\n\n"),
+    ingredients: keyIngredients || product.fullIngredients?.trim() || "",
     usage: product.usageInstructions?.trim() || "",
     benefits: product.benefits
       .map((value) => value.trim())
       .filter(Boolean)
       .join("\n\n"),
   };
-  const tabs = FORMULA_TABS.filter((tab) => content[tab.id]);
+  const tabs = FORMULA_TABS.filter((tab) => content[tab.id]).map(tab =>
+    tab.id === "ingredients" && !keyIngredients ? { ...tab, label: "Thành phần" } : tab,
+  );
   const selectedTab = tabs.some((tab) => tab.id === activeTab)
     ? activeTab
     : tabs[0]?.id;

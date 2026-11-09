@@ -5,33 +5,17 @@ import {
   formatNewsDate,
   getArticleReadMinutes,
   getNewsCategory,
-  hasNewsPicareStamp,
 } from "@/data/news";
 import { useProducts } from "@/hooks/data/useProductHooks";
 import NewsCard from "@/components/NewsCard";
 import NewsSeo from "@/components/NewsSeo";
 import ProductCard from "@/components/ProductCard";
-import PicareProductStamp from "@/components/PicareProductStamp";
 import NotFoundPage from "@/pages/NotFoundPage";
-import { useContentPreview } from "@/hooks/useContentPreview";
-
-const imageCaption =
-  "Hình ảnh minh họa sản phẩm; có sử dụng hình ảnh hỗ trợ AI.";
 
 export default function NewsArticlePage() {
   const catalog = useProducts();
   const { slug } = useParams();
   const article = NEWS_ARTICLES.find((item) => item.slug === slug);
-  const preview = useContentPreview(
-    article
-      ? {
-          image: article.image,
-          imageAlt: article.imageAlt,
-          title: article.imageAlt || article.title,
-          description: imageCaption,
-        }
-      : undefined,
-  );
   if (!article)
     return (
       <>
@@ -81,28 +65,6 @@ export default function NewsArticlePage() {
           </p>
           <p className="news-article__intro">{article.intro}</p>
         </header>
-        <figure
-          className={`container-wide news-article__cover news-article__cover--${article.imageStyle}`}
-        >
-          <div
-            className={
-              hasNewsPicareStamp(article)
-                ? "news-article__visual news-image--stamped"
-                : "news-article__visual"
-            }
-            {...preview.imageHold}
-          >
-            {hasNewsPicareStamp(article) && <PicareProductStamp />}
-            <img
-              src={article.image}
-              draggable={false}
-              alt={article.imageAlt}
-              width="1200"
-              height="480"
-            />
-          </div>
-          <figcaption {...preview.detailsHold}>{imageCaption}</figcaption>
-        </figure>
         <div className="container-wide news-article__layout">
           <nav className="news-toc" aria-label="Mục lục bài viết">
             <h2>Trong bài viết</h2>

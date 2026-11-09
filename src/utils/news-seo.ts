@@ -1,9 +1,9 @@
 import { NEWS_ARTICLES, getNewsCategory } from "@/data/news";
 
 export const SITE_ORIGIN = "https://paxmoly-storefront.vercel.app";
-export const DEFAULT_TITLE = "PaxMoly Vietnam | Serum & Mask Pack Hàn Quốc";
+export const DEFAULT_TITLE = "Pasta del Capitano Việt Nam | Chăm sóc răng miệng";
 export const DEFAULT_DESCRIPTION =
-  "PaxMoly Vietnam - Serum và mặt nạ Hàn Quốc với hoạt chất rõ ràng, dễ chọn theo nhu cầu da.";
+  "Pasta del Capitano Việt Nam. Khám phá kem đánh răng, nước súc miệng và xịt thơm miệng từ Ý.";
 export const newsSeoSelectors =
   'title, meta[name="description"], meta[name="robots"], link[rel="canonical"], meta[property^="og:"], meta[name^="twitter:"], script#news-structured-data';
 
@@ -23,8 +23,6 @@ export function getNewsSeo(path: string) {
   const description =
     article?.description ??
     "Tìm hiểu dòng CICA PaxMoly, serum, mặt nạ và cách xây dựng chu trình chăm sóc da. Bài viết có nguồn tham khảo và thông tin sản phẩm liên quan.";
-  const image = new URL(article?.image ?? NEWS_ARTICLES[0].image, SITE_ORIGIN)
-    .href;
   const schema: Record<string, unknown>[] =
     slug && !article
       ? []
@@ -35,7 +33,6 @@ export function getNewsSeo(path: string) {
                 "@type": "BlogPosting",
                 headline: article.title,
                 description,
-                image: [image],
                 datePublished: `${article.published}T09:00:00+07:00`,
                 dateModified: `${article.published}T09:00:00+07:00`,
                 inLanguage: "vi-VN",
@@ -102,7 +99,6 @@ export function getNewsSeo(path: string) {
     title,
     description,
     url,
-    image,
     article: !!article,
     robots:
       (slug && !article) || category
@@ -131,7 +127,6 @@ export function renderNewsSeoHead(seo: ReturnType<typeof getNewsSeo>) {
       "og:title": seo.title,
       "og:description": seo.description,
       "og:url": seo.url,
-      "og:image": seo.image,
       "og:type": seo.article ? "article" : "website",
       "og:locale": "vi_VN",
       "og:site_name": "PaxMoly Vietnam",
@@ -139,10 +134,9 @@ export function renderNewsSeoHead(seo: ReturnType<typeof getNewsSeo>) {
       ([property, content]) =>
         `<meta property="${property}" content="${escape(content)}">`,
     ),
-    '<meta name="twitter:card" content="summary_large_image">',
+    '<meta name="twitter:card" content="summary">',
     `<meta name="twitter:title" content="${escape(seo.title)}">`,
     `<meta name="twitter:description" content="${escape(seo.description)}">`,
-    `<meta name="twitter:image" content="${escape(seo.image)}">`,
     `<script type="application/ld+json" id="news-structured-data">${JSON.stringify(seo.schema).replace(/</g, "\\u003c")}</script>`,
   ].join("\n");
 }
