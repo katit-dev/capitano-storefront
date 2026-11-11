@@ -38,23 +38,25 @@ try {
     if (/\/src\/assets\//.test(page))
       throw new Error(`Unmapped source asset in ${route}`);
     if ((page.match(/<h1(?:\s|>)/g) ?? []).length !== 1 || (page.match(/<title>/g) ?? []).length !== 1) throw new Error(`Invalid title or H1 in ${route}`);
-    if (!page.includes(`rel="canonical" href="${SITE_ORIGIN}${route}"`)) throw new Error(`Invalid canonical in ${route}`);
+    if (SITE_ORIGIN && !page.includes(`rel="canonical" href="${SITE_ORIGIN}${route}"`)) throw new Error(`Invalid canonical in ${route}`);
     const structuredData = JSON.parse(page.match(/id="news-structured-data">([\s\S]*?)<\/script>/)[1]);
     if (structuredData[0]["@type"] !== (route === "/tin-tuc" ? "CollectionPage" : "BlogPosting")) throw new Error(`Invalid schema in ${route}`);
     const directory = join(output, route.slice(1));
     await mkdir(directory, { recursive: true });
     await writeFile(join(directory, "index.html"), page);
   }
-  await writeFile(
-    join(output, "sitemap.xml"),
-    `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapUrls.map((url) => `<url><loc>${url}</loc></url>`).join("")}</urlset>`,
-  );
+  if (sitemapUrls.length) {
+    await writeFile(
+      join(output, "sitemap.xml"),
+      `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${sitemapUrls.map((url) => `<url><loc>${url}</loc></url>`).join("")}</urlset>`,
+    );
+  }
   await writeFile(
     join(output, "robots.txt"),
-    `User-agent: *\nAllow: /\nDisallow: /thanh-toan\nSitemap: ${SITE_ORIGIN}/sitemap.xml\n`,
+    `User-agent: *\nAllow: /\nDisallow: /thanh-toan\n${SITE_ORIGIN ? `Sitemap: ${SITE_ORIGIN}/sitemap.xml\n` : ""}`,
   );
   console.log(
-    `Prerendered ${newsRoutes.length} news pages; sitemap and robots.txt generated.`,
+    `Prerendered ${newsRoutes.length} news pages; robots.txt${sitemapUrls.length ? " and sitemap" : ""} generated.`,
   );
 } finally {
   await server.close();

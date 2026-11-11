@@ -54,7 +54,7 @@ export default function NewsArticlePage() {
           </Link>
           <h1>{article.title}</h1>
           <p className="news-meta">
-            Biên soạn cho PaxMoly Vietnam{" "}
+            Biên soạn cho Pasta del Capitano Việt Nam{" "}
             <span>
               ·{" "}
               <time dateTime={article.published}>
@@ -144,11 +144,7 @@ export default function NewsArticlePage() {
             <h2>Sản phẩm được nhắc đến</h2>
             <Link
               className="news-read-link"
-              to={
-                article.category === "hoat-dong-noi-bat"
-                  ? `${PATHS.SHOP}?collection=cica`
-                  : PATHS.SHOP
-              }
+              to={PATHS.SHOP}
             >
               Xem cửa hàng →
             </Link>

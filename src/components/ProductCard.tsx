@@ -5,6 +5,7 @@ import { PATHS } from "@/config/paths";
 import { addToCartAtom } from "@/stores/cartStore";
 import type { Product } from "@/types/Product";
 import { getDiscountPercent } from "@/utils/pricing";
+import { getProductSummary } from "@/utils/product-summary";
 import { useProductPreview } from "@/hooks/useProductPreview";
 
 const price = new Intl.NumberFormat("vi-VN", {
@@ -24,7 +25,8 @@ export default function ProductCard({
 }) {
   const addToCart = useSetAtom(addToCartAtom);
   const preview = useProductPreview(product);
-  const summary = [lineLabel || product.categoryLabel, product.concern].filter(Boolean).join(" · ");
+  const label = lineLabel || product.categoryLabel;
+  const subtitle = [product.volume, getProductSummary(product)].filter(Boolean).join(" · ");
   const discountPercent = getDiscountPercent(
     product.price,
     product.compareAtPrice,
@@ -49,8 +51,8 @@ export default function ProductCard({
             Bestseller
           </span>
         ) : null}
-        {discountPercent ? (
-          <span className="product-card__sale">Giảm {discountPercent}%</span>
+        {discountPercent !== null ? (
+          <span className="product-card__sale">{discountPercent > 0 ? `Giảm ${discountPercent}%` : "Giảm giá"}</span>
         ) : null}
         <img
           src={product.image}
@@ -64,9 +66,7 @@ export default function ProductCard({
       </Link>
       <div className="product-card__body">
         <div className="product-card__info">
-          <p className="eyebrow" title={summary}>
-            {summary}
-          </p>
+          {label && <p className="eyebrow">{label}</p>}
           <Link
             to={PATHS.product(product.slug)}
             className="product-card__title"
@@ -75,13 +75,13 @@ export default function ProductCard({
           >
             {product.name}
           </Link>
-          <p className="product-card__subtitle" title={product.shortName} {...preview.detailsHold}>{product.shortName}</p>
+          {subtitle && <p className="product-card__subtitle" title={subtitle} {...preview.detailsHold}>{subtitle}</p>}
         </div>
         <button type="button" className="product-preview-button" aria-label={`Giữ để xem ${product.name}`} {...preview.detailsHold} onClick={event => event.preventDefault()}><FiZoomIn aria-hidden="true" /> Giữ để xem</button>
         <div className="product-card__bottom">
           <div className="product-card__price">
             <strong>{price.format(product.price)}</strong>
-            {discountPercent && product.compareAtPrice ? (
+            {discountPercent !== null && product.compareAtPrice !== undefined ? (
               <del
                 aria-label={`Giá gốc ${price.format(product.compareAtPrice)}`}
               >
@@ -95,7 +95,7 @@ export default function ProductCard({
             onClick={() => addToCart(product.id)}
             aria-label={`Thêm ${product.name} vào giỏ`}
           >
-            <FiPlus />
+            <FiPlus aria-hidden="true" />
           </button>
         </div>
       </div>

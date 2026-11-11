@@ -11,11 +11,14 @@ export interface Product {
   category: ProductCategory;
   categoryLabel: string;
   concern: string;
+  careNeeds?: string[];
   skinTypes?: ProductSkinType[];
   bodyArea?: ProductBodyArea;
   description: string;
+  overview?: string;
   volume: string;
   price: number;
+  isFlashSale?: boolean;
   isFeatured?: boolean;
   isBestSeller?: boolean;
   publishedAt?: string | null;
