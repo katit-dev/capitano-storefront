@@ -11,6 +11,7 @@ import FlashSaleAnnouncement from "@/components/FlashSaleAnnouncement";
 import ContentPreviewPopup from "@/components/ContentPreviewPopup";
 import { contentPreviewAtom } from "@/stores/contentPreviewStore";
 import { PATHS } from "@/config/paths";
+import { capitanoAnnouncement, capitanoContent } from "@/data/capitano-catalog";
 import { cartItemsAtom, cartDrawerOpenAtom } from "@/stores/cartStore";
 
 import { useCmsContent, menuTree, recordSiteVisit } from "@/hooks/data/useCmsContent";
@@ -22,22 +23,24 @@ export default function SiteLayout() {
   const cms = useCmsContent("home");
   const content = cms.data?.content;
   const header = content?.header;
-  const announcement = content?.announcement;
   const showLocalHeader = !previewEnabled && !content;
   const localHeader = cms.isLocal || showLocalHeader;
-  const navigation = showLocalHeader
-    ? [
-        { label: "Trang chủ", to: PATHS.HOME },
-        { label: "Tất cả sản phẩm", to: PATHS.SHOP },
-      ]
-    : menuTree(content?.menu || []);
+  const announcement = (showLocalHeader ? capitanoContent : content)?.announcement;
+  const navigation = menuTree(showLocalHeader ? capitanoContent.menu : content?.menu || []);
   const logoSrc = header?.logoUrl || undefined;
   const logoAlt = logoSrc ? header?.logoAlt || "Pasta del Capitano" : undefined;
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDialogElement>(null);
   const location = useLocation();
   const lastVisit = useRef<string | null>(null);
-  const visitPath = location.pathname + location.search;
+  let visitPath = location.pathname + location.search;
+  if (location.pathname === PATHS.SHOP) {
+    const visitParams = new URLSearchParams(location.search);
+    // Search input, sort and price changes are interactions within the same page view.
+    for (const key of ["q", "sort", "minPrice", "maxPrice", "discount", "flashSale", "focus"]) visitParams.delete(key);
+    const query = visitParams.toString();
+    visitPath = query ? `${location.pathname}?${query}` : location.pathname;
+  }
   useEffect(() => {
     // Plain HTTP on a LAN does not expose randomUUID; analytics must not break the page.
     if (typeof window.crypto?.randomUUID !== "function") return;
@@ -74,12 +77,32 @@ export default function SiteLayout() {
   return (
     <div id="site-shell-root" className="site-shell">
       <a className="skip-link" href="#main-content">Đi tới nội dung chính</a>
-      {announcement && <div className="announcement"><span className="announcement__primary">{announcement.message}</span><span className="picare-signature"><span>{announcement.partnerLabel}</span>{announcement.partnerLogoUrl && <CmsLink to={announcement.partnerLinkUrl || "#"} className={`picare-signature__mark${announcement.partnerLogoUrl.split("?")[0].endsWith("/7db24069-c674-4d32-afc2-3c3d80bc9d35.png") ? " picare-signature__mark--padded" : ""}`}><img src={announcement.partnerLogoUrl} alt={announcement.partnerLogoAlt || ""} /></CmsLink>}</span></div>}
+      {announcement && (
+        <div className={localHeader ? "announcement announcement--local" : "announcement"}>
+          <span className="announcement__primary">{announcement.message}</span>
+          {localHeader && <span className="announcement__compact">{capitanoAnnouncement.mobileMessage}</span>}
+          <span className="picare-signature">
+            <span>{announcement.partnerLabel}</span>
+            {localHeader ? (
+              <span className="picare-signature__mark">
+                <img src={capitanoAnnouncement.partnerLogoUrl} alt={capitanoAnnouncement.partnerLogoAlt} />
+              </span>
+            ) : announcement.partnerLogoUrl && (
+              <CmsLink
+                to={announcement.partnerLinkUrl || "#"}
+                className={`picare-signature__mark${announcement.partnerLogoUrl.split("?")[0].endsWith("/7db24069-c674-4d32-afc2-3c3d80bc9d35.png") ? " picare-signature__mark--padded" : ""}`}
+              >
+                <img src={announcement.partnerLogoUrl} alt={announcement.partnerLogoAlt || ""} />
+              </CmsLink>
+            )}
+          </span>
+        </div>
+      )}
       {(header || showLocalHeader) && <header className={localHeader ? "site-header site-header--local" : "site-header"} data-template-fixed="site-header">
         <div className="site-header__inner container-wide">
           <button className="header-action header-action--menu" type="button" onClick={() => setMenuOpen(true)} aria-label="Mở menu" aria-expanded={menuOpen} aria-controls="mobile-navigation-dialog"><FiMenu /></button>
-          <CmsLink to={header?.logoLinkUrl || PATHS.HOME} className="header-logo" aria-label={`${logoAlt || "Pasta del Capitano"} - Trang chủ`}><BrandLogo src={logoSrc} alt={logoAlt} /></CmsLink>
           <SiteNavigation items={navigation} />
+          <CmsLink to={header?.logoLinkUrl || PATHS.HOME} className="header-logo" aria-label={`${logoAlt || "Pasta del Capitano"} - Trang chủ`}><BrandLogo src={logoSrc} alt={logoAlt} /></CmsLink>
           <div className="header-actions">
             {(header?.showHotline && header.hotlineNumber) && <a className="header-hotline" href={`tel:${(header.hotlineNumber || "").replace(/[^+0-9]/g, "")}`}>
               <FiPhone aria-hidden="true" />

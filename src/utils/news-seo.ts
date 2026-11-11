@@ -1,6 +1,7 @@
 import { NEWS_ARTICLES, getNewsCategory } from "@/data/news";
 
-export const SITE_ORIGIN = "https://paxmoly-storefront.vercel.app";
+export const SITE_ORIGIN = (import.meta.env.VITE_SITE_ORIGIN || "").trim().replace(/\/$/, "");
+const SITE_NAME = "Pasta del Capitano Việt Nam";
 export const DEFAULT_TITLE = "Pasta del Capitano Việt Nam | Chăm sóc răng miệng";
 export const DEFAULT_DESCRIPTION =
   "Pasta del Capitano Việt Nam. Khám phá kem đánh răng, nước súc miệng và xịt thơm miệng từ Ý.";
@@ -8,7 +9,7 @@ export const newsSeoSelectors =
   'title, meta[name="description"], meta[name="robots"], link[rel="canonical"], meta[property^="og:"], meta[name^="twitter:"], script#news-structured-data';
 
 export function getNewsSeo(path: string) {
-  const location = new URL(path, SITE_ORIGIN);
+  const location = new URL(path, SITE_ORIGIN || "http://localhost");
   const slug = location.pathname
     .replace(/^\/tin-tuc\/?/, "")
     .replace(/\/$/, "");
@@ -16,13 +17,13 @@ export function getNewsSeo(path: string) {
   const category = getNewsCategory(location.searchParams.get("category") ?? "");
   const url = `${SITE_ORIGIN}/tin-tuc${article ? `/${article.slug}` : ""}`;
   const title = article
-    ? `${article.title} | PaxMoly Vietnam`
+    ? `${article.title} | ${SITE_NAME}`
     : slug
-      ? "Không tìm thấy bài viết | PaxMoly Vietnam"
-      : `${category?.label ?? "Tin tức & kiến thức chăm sóc da"} | PaxMoly Vietnam`;
+      ? `Không tìm thấy bài viết | ${SITE_NAME}`
+      : `${category?.label ?? "Tất cả tin tức"} | ${SITE_NAME}`;
   const description =
     article?.description ??
-    "Tìm hiểu dòng CICA PaxMoly, serum, mặt nạ và cách xây dựng chu trình chăm sóc da. Bài viết có nguồn tham khảo và thông tin sản phẩm liên quan.";
+    "Kiến thức chăm sóc răng miệng, hướng dẫn sản phẩm và hoạt động của Pasta del Capitano.";
   const schema: Record<string, unknown>[] =
     slug && !article
       ? []
@@ -40,12 +41,12 @@ export function getNewsSeo(path: string) {
                 articleSection: getNewsCategory(article.category)?.label,
                 author: {
                   "@type": "Organization",
-                  name: "PaxMoly Vietnam",
+                  name: SITE_NAME,
                   url: SITE_ORIGIN,
                 },
                 publisher: {
                   "@type": "Organization",
-                  name: "PaxMoly Vietnam",
+                  name: SITE_NAME,
                   url: SITE_ORIGIN,
                 },
               }
@@ -101,7 +102,7 @@ export function getNewsSeo(path: string) {
     url,
     article: !!article,
     robots:
-      (slug && !article) || category
+      !SITE_ORIGIN || !NEWS_ARTICLES.length || (slug && !article) || category
         ? "noindex, follow"
         : "index, follow, max-image-preview:large",
     schema,
@@ -122,14 +123,14 @@ export function renderNewsSeoHead(seo: ReturnType<typeof getNewsSeo>) {
     `<title>${escape(seo.title)}</title>`,
     `<meta name="description" content="${escape(seo.description)}">`,
     `<meta name="robots" content="${escape(seo.robots)}">`,
-    `<link rel="canonical" href="${escape(seo.url)}">`,
+    ...(SITE_ORIGIN ? [`<link rel="canonical" href="${escape(seo.url)}">`] : []),
     ...Object.entries({
       "og:title": seo.title,
       "og:description": seo.description,
-      "og:url": seo.url,
+      ...(SITE_ORIGIN ? { "og:url": seo.url } : {}),
       "og:type": seo.article ? "article" : "website",
       "og:locale": "vi_VN",
-      "og:site_name": "PaxMoly Vietnam",
+      "og:site_name": SITE_NAME,
     }).map(
       ([property, content]) =>
         `<meta property="${property}" content="${escape(content)}">`,

@@ -10,11 +10,11 @@ export const newsRoutes = [
   "/tin-tuc",
   ...NEWS_ARTICLES.map((article) => `/tin-tuc/${article.slug}`),
 ];
-export const sitemapUrls = [
+export const sitemapUrls = SITE_ORIGIN ? [
   "/",
   "/cua-hang",
-  ...newsRoutes,
-].map((path) => `${SITE_ORIGIN}${path}`);
+  ...(NEWS_ARTICLES.length ? newsRoutes : []),
+].map((path) => `${SITE_ORIGIN}${path}`) : [];
 export { SITE_ORIGIN };
 
 export function validateNewsContent() {
@@ -24,7 +24,7 @@ export function validateNewsContent() {
     for (const source of article.sources) {
       if (!source.url.startsWith("/")) continue;
       const path = source.url.split("?")[0];
-      if (path !== "/cua-hang" && !path.startsWith("/san-pham/") && !sitemapUrls.includes(`${SITE_ORIGIN}${path}`)) throw new Error(`Broken source link: ${source.url}`);
+      if (path !== "/" && path !== "/cua-hang" && !path.startsWith("/san-pham/") && !newsRoutes.includes(path)) throw new Error(`Broken source link: ${source.url}`);
     }
   }
 }

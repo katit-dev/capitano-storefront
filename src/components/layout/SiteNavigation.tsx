@@ -1,20 +1,20 @@
 import { useEffect, useRef, type MouseEvent } from "react";
 import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 import { useLocation, useNavigate } from "react-router-dom";
-import { NAVIGATION, type NavigationItem } from "@/config/routes.config";
+import type { NavigationItem } from "@/config/routes.config";
 import { PATHS } from "@/config/paths";
 
 import CmsLink from "@/components/CmsLink";
 type Props = {
   mobile?: boolean;
   onNavigate?: () => void;
-  items?: NavigationItem[];
+  items: NavigationItem[];
 };
 
 export default function SiteNavigation({
   mobile = false,
   onNavigate,
-  items = NAVIGATION,
+  items,
 }: Props) {
   const navRef = useRef<HTMLElement>(null);
   const variant = mobile ? "mobile" : "desktop";
@@ -72,7 +72,7 @@ export default function SiteNavigation({
     const isActive =
       pathname === location.pathname &&
       (!hash || location.hash === `#${hash}`) &&
-      ["category", "skin", "area"].every(
+      ["category", "collection", "concern", "skin", "area"].every(
         (key) => currentParams.get(key) === linkParams.get(key),
       );
     return (

@@ -1,4 +1,5 @@
 import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { FiPause, FiPlay } from "react-icons/fi";
 import type { Product } from "@/types/Product";
 import { useContentPreview } from "@/hooks/useContentPreview";
 
@@ -13,30 +14,28 @@ type FormulaTabId = (typeof FORMULA_TABS)[number]["id"];
 
 export default function ProductFormulaTabs({ product }: { product: Product }) {
   const [activeTab, setActiveTab] = useState<FormulaTabId>("overview");
+  const [motionPaused, setMotionPaused] = useState(false);
   const id = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const keyIngredients = product.ingredients.map(value => value.trim()).filter(Boolean).join("\n\n");
+  const fullIngredients = product.fullIngredients?.trim() || "";
+  const benefits = product.benefits
+    .map(value => value.trim().replace(/^(?:[•·–—]\s*|-\s+)/, ""))
+    .filter(Boolean);
   const content: Record<FormulaTabId, string> = {
-    overview: product.description.trim(),
-    ingredients: keyIngredients || product.fullIngredients?.trim() || "",
+    overview: product.overview?.trim() || product.description.trim(),
+    ingredients: keyIngredients || fullIngredients,
     usage: product.usageInstructions?.trim() || "",
-    benefits: product.benefits
-      .map((value) => value.trim())
-      .filter(Boolean)
-      .join("\n\n"),
+    benefits: benefits.join("\n\n"),
   };
-  const tabs = FORMULA_TABS.filter((tab) => content[tab.id]).map(tab =>
-    tab.id === "ingredients" && !keyIngredients ? { ...tab, label: "Thành phần" } : tab,
-  );
-  const selectedTab = tabs.some((tab) => tab.id === activeTab)
-    ? activeTab
-    : tabs[0]?.id;
+  const tabs = FORMULA_TABS.filter(tab => content[tab.id]);
+  const selectedTab = tabs.find(tab => tab.id === activeTab) ?? tabs[0];
   const preview = useContentPreview(
     selectedTab
       ? {
           image: product.image,
-          title: tabs.find((tab) => tab.id === selectedTab)!.label,
-          description: content[selectedTab],
+          title: selectedTab.label,
+          description: content[selectedTab.id],
           imageAlt: product.name,
         }
       : undefined,
@@ -72,60 +71,82 @@ export default function ProductFormulaTabs({ product }: { product: Product }) {
     });
   }
 
-  if (!tabs.length) return null;
+  if (!selectedTab) return null;
 
   return (
-    <div className="formula-story__copy">
-      <div
-        className="formula-story__tabs"
-        role="tablist"
-        aria-label="Thông tin sản phẩm"
-      >
-        {tabs.map((tab, index) => (
-          <button
-            key={tab.id}
-            ref={(element) => {
-              tabRefs.current[index] = element;
-            }}
-            id={`${id}-${tab.id}-tab`}
-            className="formula-story__tab"
-            type="button"
-            role="tab"
-            aria-selected={selectedTab === tab.id}
-            aria-controls={`${id}-${tab.id}-panel`}
-            tabIndex={selectedTab === tab.id ? 0 : -1}
-            onClick={() => setActiveTab(tab.id)}
-            onKeyDown={(event) => handleTabKeyDown(event, index)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-      <div className="formula-story__panels">
-        {tabs.map((tab) => (
-          <div
-            key={tab.id}
-            id={`${id}-${tab.id}-panel`}
-            className={
-              selectedTab === tab.id
-                ? "formula-story__panel is-active"
-                : "formula-story__panel"
-            }
-            role="tabpanel"
-            aria-labelledby={`${id}-${tab.id}-tab`}
-            aria-hidden={selectedTab !== tab.id}
-            inert={selectedTab !== tab.id}
-            tabIndex={selectedTab === tab.id ? 0 : -1}
-          >
-            <p
-              className="formula-story__text"
-              {...(selectedTab === tab.id ? preview.detailsHold : {})}
-            >
-              {content[tab.id]}
-            </p>
+    <section className="formula-story" aria-label="Thông tin sản phẩm">
+      <div className="container-wide formula-story__grid">
+        <div className="formula-story__copy">
+          <div className="formula-story__tabs" role="tablist" aria-label="Thông tin sản phẩm">
+            {tabs.map((tab, index) => (
+              <button
+                key={tab.id}
+                ref={element => { tabRefs.current[index] = element; }}
+                id={`${id}-${tab.id}-tab`}
+                className="formula-story__tab"
+                data-tab={tab.id}
+                type="button"
+                role="tab"
+                aria-selected={selectedTab.id === tab.id}
+                aria-controls={`${id}-${tab.id}-panel`}
+                tabIndex={selectedTab.id === tab.id ? 0 : -1}
+                onClick={() => setActiveTab(tab.id)}
+                onKeyDown={event => handleTabKeyDown(event, index)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-        ))}
+          {tabs.map(tab => (
+            <div
+              key={tab.id}
+              id={`${id}-${tab.id}-panel`}
+              className="formula-story__panel"
+              role="tabpanel"
+              aria-labelledby={`${id}-${tab.id}-tab`}
+              hidden={selectedTab.id !== tab.id}
+              tabIndex={selectedTab.id === tab.id ? 0 : -1}
+              {...(selectedTab.id === tab.id ? preview.detailsHold : {})}
+            >
+              {tab.id === "overview" ? (
+                content.overview.split(/\r?\n(?:[^\S\r\n]*\r?\n)+/).map((paragraph, index) => (
+                  <p key={index} className="formula-story__text">{paragraph.trim()}</p>
+                ))
+              ) : tab.id === "ingredients" ? (
+                <>
+                  <p className="formula-story__text">{content.ingredients}</p>
+                  {keyIngredients && fullIngredients && keyIngredients !== fullIngredients && (
+                    <details className="formula-story__ingredients">
+                      <summary>Thành phần đầy đủ</summary>
+                      <p className="formula-story__text">{fullIngredients}</p>
+                    </details>
+                  )}
+                </>
+              ) : tab.id === "benefits" ? (
+                <ul className="formula-story__text formula-story__list">
+                  {benefits.map((benefit, index) => <li key={`${benefit}-${index}`}>{benefit}</li>)}
+                </ul>
+              ) : (
+                <p className="formula-story__text">{content[tab.id]}</p>
+              )}
+            </div>
+          ))}
+        </div>
+        {product.image && (
+          <div className="formula-story__visual" data-motion-paused={motionPaused}>
+            <div className="formula-story__orbit" aria-hidden="true" />
+            <img src={product.image} alt={product.name} loading="lazy" {...preview.imageHold} />
+            <button
+              className="formula-story__motion"
+              type="button"
+              aria-label={motionPaused ? "Phát chuyển động ảnh" : "Tạm dừng chuyển động ảnh"}
+              onClick={() => setMotionPaused(paused => !paused)}
+            >
+              {motionPaused ? <FiPlay aria-hidden="true" /> : <FiPause aria-hidden="true" />}
+            </button>
+          </div>
+        )}
       </div>
-    </div>
+    </section>
   );
 }

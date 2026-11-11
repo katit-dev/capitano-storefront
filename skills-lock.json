@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "skills": {
+    "karpathy-guidelines": {
+      "source": "nguyenphutrong/andrej-karpathy-skills-codex",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/karpathy-guidelines/SKILL.md",
+      "computedHash": "2023d032509d946657909dad27c99776d3cc288571148fcccac9cdfd219c2ba1",
+      "installMode": "copy"
+    }
+  }
+}

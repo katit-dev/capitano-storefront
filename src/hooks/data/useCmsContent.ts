@@ -14,10 +14,10 @@ export type CmsItem = {
   startsAt?: string; endsAt?: string; showCountdown?: boolean; showAfterEnd?: boolean;
 };
 export type CatalogType = { id: string; code: string; slug?: string; name: string };
-export type CatalogVariant = { id: string; sku: string; name: string; packaging?: string; unitVolume?: number; volumeUnit?: string; listPrice: number | string; sellingPrice: number | string; flashPrice?: number | string; flashStartsAt?: string; flashEndsAt?: string };
+export type CatalogVariant = { id: string; sku: string; name: string; packaging?: string; unitVolume?: number | string | null; volumeUnit?: string | null; listPrice: number | string; sellingPrice: number | string; flashPrice?: number | string; flashStartsAt?: string; flashEndsAt?: string };
 export type CatalogProduct = {
   id: string; code: string; slug: string; name: string; shortName?: string; categoryId?: string;
-  productLineId?: string; description?: string; suitableSkinTypes?: string; keyIngredients?: string;
+  productLineId?: string; description?: string; overview?: string; suitableSkinTypes?: string; careNeeds?: string[]; keyIngredients?: string;
   ingredients?: string; benefits?: string; usageInstructions?: string; displayLabel?: string;
   isFeatured?: boolean; isBestSeller?: boolean; publishedAt?: string | null; imageUrl: string; variants: CatalogVariant[];
 };
