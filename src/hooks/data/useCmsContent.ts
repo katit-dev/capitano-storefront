@@ -19,7 +19,8 @@ export type CatalogProduct = {
   id: string; code: string; slug: string; name: string; shortName?: string; categoryId?: string;
   productLineId?: string; description?: string; overview?: string; suitableSkinTypes?: string; careNeeds?: string[]; keyIngredients?: string;
   ingredients?: string; benefits?: string; usageInstructions?: string; displayLabel?: string;
-  isFeatured?: boolean; isBestSeller?: boolean; publishedAt?: string | null; imageUrl: string; variants: CatalogVariant[];
+  isFeatured?: boolean; isBestSeller?: boolean; publishedAt?: string | null;
+  imageUrl: string; catalogImageUrl?: string; variants: CatalogVariant[];
 };
 export type CmsContent = {
   products?: CatalogProduct[]; productTypes?: CatalogType[]; productLines?: CatalogType[];

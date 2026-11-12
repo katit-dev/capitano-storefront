@@ -25,6 +25,7 @@ export default function ProductCard({
 }) {
   const addToCart = useSetAtom(addToCartAtom);
   const preview = useProductPreview(product);
+  const imageTreatment = product.catalogImage ? "catalog" : product.cardImageTreatment;
   const label = lineLabel || product.categoryLabel;
   const subtitle = [product.volume, getProductSummary(product)].filter(Boolean).join(" · ");
   const discountPercent = getDiscountPercent(
@@ -34,7 +35,7 @@ export default function ProductCard({
 
   return (
     <article
-      className={`product-card${product.cardImageTreatment ? ` product-card--${product.cardImageTreatment}` : ""}`}
+      className={`product-card${imageTreatment ? ` product-card--${imageTreatment}` : ""}`}
     >
       <Link
         to={PATHS.product(product.slug)}
@@ -55,7 +56,7 @@ export default function ProductCard({
           <span className="product-card__sale">{discountPercent > 0 ? `Giảm ${discountPercent}%` : "Giảm giá"}</span>
         ) : null}
         <img
-          src={product.image}
+          src={product.catalogImage || product.image}
           alt={product.name}
           draggable={false}
           loading={priority ? "eager" : "lazy"}

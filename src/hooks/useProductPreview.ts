@@ -3,12 +3,12 @@ import type { Product } from "@/types/Product";
 
 // Product cards retain the phase-one API while sharing the same hold lifecycle.
 export function useProductPreview(
-  product: Pick<Product, "image" | "name" | "shortName"> | undefined,
+  product: Pick<Product, "image" | "catalogImage" | "name" | "shortName"> | undefined,
 ) {
   return useContentPreview(
     product
       ? {
-          image: product.image,
+          image: product.catalogImage || product.image,
           title: product.name,
           description: product.shortName,
         }

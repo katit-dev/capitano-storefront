@@ -21,6 +21,11 @@ import cap011 from "@/assets/products/catalog/CAP011.png";
 import cap012 from "@/assets/products/catalog/CAP012.png";
 import cap018 from "@/assets/products/catalog/CAP018.png";
 
+const catalogImages = import.meta.glob<string>(
+  "../assets/products/Images_product_capitano/*.webp",
+  { eager: true, import: "default", query: "?url" },
+);
+
 const productTypes: CatalogType[] = [
   { id: "toothpaste", code: "kem-danh-rang", name: "Kem đánh răng" },
   { id: "mouthwash", code: "nuoc-suc-mieng", name: "Nước súc miệng" },
@@ -75,6 +80,7 @@ type LocalProduct = {
   volume: string;
   price: number;
   image: string;
+  catalogImageName?: string;
   sku?: string;
   featured?: boolean;
   isBestSeller?: boolean;
@@ -356,6 +362,7 @@ const localProducts: LocalProduct[] = [
     volume: "75 ml",
     price: 162_000,
     image: lemon1905,
+    catalogImageName: "1905-Huong-Chanh-75ml",
     description: "Giúp duy trì vệ sinh khoang miệng, hỗ trợ nướu khỏe mạnh và hạn chế mùi hôi miệng.",
     ingredients: "Sorbitol, Aqua, Hydrated Silica, Calcium Carbonate, Polysorbate 60, Zinc Coco-Sulfate, Cellulose Gum, Menthol, Limonene, Aroma, Sodium Saccharin, Citrus Limon Peel Oil, Citral, Citrus Limon Fruit Extract, Pinene, Linalyl Acetate, Linalool, Terpineol, Camphor, Beta-Caryophyllene, Geranyl Acetate, Geraniol, Terpinolene.",
   },
@@ -377,6 +384,7 @@ const localProducts: LocalProduct[] = [
     volume: "100 ml",
     price: 135_000,
     image: bakingSoda,
+    catalogImageName: "Maxi-Baking-Soda-100ml",
     description: "Trung hòa axit mảng bám, điều chỉnh độ pH trong khoang miệng, giúp phục hồi màu trắng tự nhiên của răng.",
     ingredients: "Glycerin, Hydrated Silica, Aqua (Water), Sorbitol, Calcium Carbonate, Polysorbate 60, Zinc Coco-Sulfate, Cellulose Gum, Menthol, Anethole, Sodium Saccharin, Mentha Viridis Leaf Oil, Carvone, Aroma (Hương liệu), Mentha Piperita Oil, Eugenol, Limonene, Geraniol, Beta-Caryophyllene, Beta-Pinenes, Alpha-Pinenes.",
   },
@@ -398,6 +406,7 @@ const localProducts: LocalProduct[] = [
     volume: "100 ml",
     price: 135_000,
     image: tartarControl,
+    catalogImageName: "Maxi-Giam-Cao-Rang-100ml",
     description: "Giúp làm sạch khoang miệng, ngăn ngừa tình trạng tích tụ cao răng.",
     ingredients: "Aqua, Sorbitol, Hydrated silica, Glycerin, Calcium carbonate,Polysorbate 60, Zinc coco-sulfate, Aroma, Cellulose gum, Propylene glycol, Sodium monofluorophosphate, Sodium saccharin, Tetrasodium pyrophosphate, Zinc lactate, Sodium fluoride, Zinc citrate, Thymusvulgaris flower/leaf extract, Salvia officinalis extract, Linalool, Limonene, CI 47005, CI 42051.",
   },
@@ -419,6 +428,7 @@ const localProducts: LocalProduct[] = [
     volume: "100 ml",
     price: 135_000,
     image: plaqueControl,
+    catalogImageName: "Maxi-Lam-Sach-Mang-Bam-100ml",
     description: "Giúp làm sạch khoang miệng, ngăn ngừa tình trạng hình thành cao răng.",
     ingredients: "Aqua, Glycerin, Hydrated Silica, Calcium Carbonate, Zinc Coco-Sulfate, Cellulose Gum, Menthol, Sodium Monofluorophosphate, Sodium Saccharin, Anethole, Aroma, Tetrasodium Pyrophosphate, Mentha Piperita Oil, Eugenol, Mentha Viridis Leaf Oil, Carvone, Limonene, Geraniol, Beta-Pinenes, Eugenia Caryophyllus Oil, Alpha-Pinenes, Beta-Caryophyllene, Linalool.",
   },
@@ -520,6 +530,7 @@ const localProducts: LocalProduct[] = [
 
 const products: CatalogProduct[] = localProducts.map(product => {
   const id = `capitano-${product.slug}`;
+  const imageName = product.sku ?? product.catalogImageName;
   return {
     id,
     slug: product.slug,
@@ -536,6 +547,7 @@ const products: CatalogProduct[] = localProducts.map(product => {
     usageInstructions: product.usageInstructions,
     benefits: product.benefits.join("\n"),
     imageUrl: product.image,
+    catalogImageUrl: catalogImages[`../assets/products/Images_product_capitano/${imageName}.webp`],
     isFeatured: product.featured,
     isBestSeller: product.isBestSeller,
     publishedAt: product.publishedAt,
