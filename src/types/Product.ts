@@ -27,6 +27,7 @@ export interface Product {
   usageInstructions?: string;
   compareAtPrice?: number;
   image: string;
+  catalogImage?: string;
   cardImageTreatment?: "padded-mask" | "full-mask";
   badge?: string;
   tone: string;

@@ -104,14 +104,14 @@ export default function ProductDetailPage() {
   return (
     <div className={query.isLocal ? "product-detail-page product-detail-page--local" : "product-detail-page"}>
       <div className="container-wide product-detail">
-        <div className="product-detail__media">
+        <div className={product.catalogImage ? "product-detail__media product-detail__media--catalog" : "product-detail__media"}>
           <Link to={PATHS.SHOP} className="product-detail__back">
             <FiArrowLeft aria-hidden="true" /> Cửa hàng
           </Link>
           {product.badge ? (
             <span className="product-detail__badge">{product.badge}</span>
           ) : null}
-          <img src={product.image} alt={product.name} {...preview.imageHold} />
+          <img src={product.catalogImage || product.image} alt={product.name} {...preview.imageHold} />
           <button type="button" className="product-preview-button" aria-label={`Giữ để xem ảnh ${product.name}`} {...preview.imageHold} onClick={event => event.preventDefault()}><FiZoomIn aria-hidden="true" /> Giữ để xem</button>
         </div>
         <div className="product-detail__content">
