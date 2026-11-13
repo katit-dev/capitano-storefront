@@ -6,6 +6,7 @@ import NewsPage from "@/pages/NewsPage";
 import NewsArticlePage from "@/pages/NewsArticlePage";
 import CheckoutPage from "@/pages/CheckoutPage";
 import ProductDetailPage from "@/pages/ProductDetailPage";
+import ContentPage from "@/pages/ContentPage";
 import NotFoundPage from "@/pages/NotFoundPage";
 import { PATHS } from "@/config/paths";
 
@@ -20,6 +21,7 @@ export default function App() {
         <Route path={PATHS.CHECKOUT} element={<CheckoutPage />} />
         <Route path={PATHS.PRODUCT} element={<ProductDetailPage />} />
         <Route path="/san-pham" element={<Navigate to={PATHS.SHOP} replace />} />
+        <Route path="/:slug" element={<ContentPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>

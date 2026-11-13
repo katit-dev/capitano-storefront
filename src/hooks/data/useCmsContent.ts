@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { capitanoContent } from "@/data/capitano-catalog";
+import type { PageContent } from "@/types/Page";
 import type { NavigationItem } from "@/config/routes.config";
 import { previewEnabled, usePreviewSnapshot } from "./cmsPreview";
 export type CmsItem = {
@@ -22,24 +23,36 @@ export type CatalogProduct = {
   isFeatured?: boolean; isBestSeller?: boolean; publishedAt?: string | null;
   imageUrl: string; catalogImageUrl?: string; variants: CatalogVariant[];
 };
+export type FooterGroup = { id: string; title: string; links: { id: string; label: string; linkUrl: string; openInNewTab: boolean }[] };
+export type CmsPage = { title: string; slug: string; excerpt?: string | null; content: PageContent; publishedAt?: string | null };
 export type CmsContent = {
   products?: CatalogProduct[]; productTypes?: CatalogType[]; productLines?: CatalogType[];
   announcement: CmsItem | null; header: CmsItem | null; menu: CmsItem[];
   banners?: CmsItem[]; flashSales?: CmsItem[]; skinNeedSection?: CmsItem | null; skinNeeds?: CmsItem[]; featuredLines?: CmsItem[];
-  underBanner?: CmsItem | null; newsletter: CmsItem | null; footer?: CmsItem | null; shopHero?: CmsItem | null;
+  underBanner?: CmsItem | null; newsletter: CmsItem | null; footer?: CmsItem | null; footerGroups?: FooterGroup[]; shopHero?: CmsItem | null;
 };
 type Envelope<T> = { success: boolean; data: T; message?: string };
 const base = (import.meta.env.VITE_CMS_API_URL || "").replace(/\/$/, "");
 const code = import.meta.env.VITE_CMS_SITE_CODE || "capitano";
 export const cmsEnabled = Boolean(base);
 const endpoint = `${base}/api/public/v1/sites/${encodeURIComponent(code)}`;
+export class CmsResponseError extends Error {
+  constructor(readonly status: number) {
+    super("Không thể tải nội dung. Vui lòng thử lại.");
+  }
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${endpoint}/${path}`, options);
-  if (!response.ok) throw new Error("Không thể tải nội dung. Vui lòng thử lại.");
+  if (!response.ok) throw new CmsResponseError(response.status);
   const result: Envelope<T> = await response.json();
   if (!result.success) throw new Error(result.message || "Yêu cầu chưa thành công.");
   return result.data;
 }
+export function fetchCmsPage(slug: string, signal?: AbortSignal) {
+  return request<CmsPage>("pages/" + encodeURIComponent(slug), { signal });
+}
+
 const localData = { content: capitanoContent };
 
 export function useCmsContent(page: "home" | "shop") {

@@ -2109,44 +2109,6 @@ input:focus-visible {
   outline-color: var(--green);
 }
 
-.footer-info-dialog {
-  width: min(520px, calc(100vw - 32px));
-  margin: auto;
-  padding: 0;
-  border: 1px solid var(--line);
-  border-radius: 16px;
-  color: var(--brown);
-  background: var(--paper);
-  box-shadow: var(--shadow-soft);
-}
-
-.footer-info-dialog::backdrop {
-  background: rgb(0 0 0 / 40%);
-}
-
-.footer-info-dialog__content {
-  position: relative;
-  display: grid;
-  gap: 16px;
-  padding: 36px 28px;
-}
-
-.footer-info-dialog h2 {
-  margin: 0 38px 0 0;
-  font-size: 1rem;
-}
-
-.footer-info-dialog p {
-  font-size: 0.95rem;
-  line-height: 1.7;
-}
-
-.footer-info-dialog a {
-  color: var(--green-dark);
-  overflow-wrap: anywhere;
-}
-
-.footer-info-dialog__close,
 .support-widget__panel-header button {
   display: grid;
   flex-shrink: 0;
@@ -2158,12 +2120,6 @@ input:focus-visible {
   color: var(--brown);
   background: var(--green-mist);
   font-size: 1.3rem;
-}
-
-.footer-info-dialog__close {
-  position: absolute;
-  top: 12px;
-  right: 12px;
 }
 
 .support-widget {
@@ -6652,6 +6608,13 @@ input:focus-visible {
   margin-top: 20px;
 }
 
+.ai-chat__product-link {
+  color: var(--green-dark);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .ai-chat__message-link {
   display: inline-flex;
   align-items: center;
@@ -7056,3 +7019,19 @@ input:focus-visible {
   .shop-page--local .shop-hero__inner { gap: 10px; }
   .shop-page--local .shop-search input { font-size: 1rem; }
 }
+
+.cms-text-page { max-width: 960px; padding-block: 48px 80px; min-height: 50vh; }
+.cms-text-page nav { margin-bottom: 24px; font-size: .875rem; }
+.cms-text-page h1 { font-size: clamp(1.75rem, 4vw, 2.75rem); line-height: 1.25; margin-bottom: 24px; }
+.cms-text-page__excerpt { font-size: 1.1rem; margin-bottom: 24px; }
+.cms-text-page__body { white-space: pre-line; overflow-wrap: anywhere; line-height: 1.8; }
+.cms-text-page__body p + p { margin-top: 16px; }
+.cms-text-page__body h2 { font-size: 1.65rem; line-height: 1.4; font-weight: 700; margin: 30px 0 14px; }
+.cms-text-page__body h3 { font-size: 1.25rem; line-height: 1.5; font-weight: 600; margin: 24px 0 12px; }
+.cms-text-page__body ul { list-style: disc; padding-left: 1.6em; margin-block: 18px; }
+.cms-text-page__body ol { list-style: decimal; padding-left: 1.6em; margin-block: 18px; }
+.cms-text-page__body li { margin-block: 6px; }
+.cms-text-page__body li p { margin: 0; }
+.cms-text-page__body blockquote { border-left: 3px solid var(--green-dark); padding-left: 20px; margin-block: 24px; }
+.cms-text-page__body a { color: var(--green-dark); text-decoration: underline; text-underline-offset: 3px; }
+.cms-text-page__body hr { border: 0; border-top: 1px solid var(--line); margin-block: 28px; }

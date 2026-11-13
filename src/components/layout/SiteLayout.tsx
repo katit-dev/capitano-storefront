@@ -10,6 +10,7 @@ import FloatingSupport from "@/components/FloatingSupport";
 import FlashSaleAnnouncement from "@/components/FlashSaleAnnouncement";
 import ContentPreviewPopup from "@/components/ContentPreviewPopup";
 import { contentPreviewAtom } from "@/stores/contentPreviewStore";
+import { CONTACT } from "@/config/contact";
 import { PATHS } from "@/config/paths";
 import { capitanoAnnouncement, capitanoContent } from "@/data/capitano-catalog";
 import { cartItemsAtom, cartDrawerOpenAtom } from "@/stores/cartStore";
@@ -131,7 +132,9 @@ export default function SiteLayout() {
 
       <main id="main-content"><Outlet /></main>
       <SiteFooter />
-      {!menuOpen && !cartOpen && <FloatingSupport />}
+      {!menuOpen && !cartOpen && !previewEnabled && (
+        <FloatingSupport hotline={localHeader ? CONTACT.phone : header?.showHotline ? header.hotlineNumber || undefined : undefined} />
+      )}
       <CartDrawer />
       <ContentPreviewPopup />
       <FlashSaleAnnouncement items={content?.flashSales} enabled={!menuOpen && !cartOpen && !contentPreview && !cms.isError} />
