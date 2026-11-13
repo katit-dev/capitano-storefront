@@ -15,7 +15,7 @@ type Props = {
 const EMPTY_ITEMS: readonly CmsItem[] = [];
 
 export default function FlashSaleAnnouncement({ items = EMPTY_ITEMS, enabled = true }: Props) {
-  const [session] = useState(() => createFlashSaleSession(import.meta.env.VITE_CMS_SITE_CODE || "paxmoly"));
+  const [session] = useState(() => createFlashSaleSession(import.meta.env.VITE_CMS_SITE_CODE || undefined));
   const [sales, setSales] = useState<CmsItem[]>([]);
   const navigate = useNavigate();
   const location = useLocation();

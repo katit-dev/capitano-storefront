@@ -102,7 +102,7 @@ export function getNewsSeo(path: string) {
     url,
     article: !!article,
     robots:
-      !SITE_ORIGIN || !NEWS_ARTICLES.length || (slug && !article) || category
+      import.meta.env.DEV || !SITE_ORIGIN || !NEWS_ARTICLES.length || (slug && !article) || category
         ? "noindex, follow"
         : "index, follow, max-image-preview:large",
     schema,

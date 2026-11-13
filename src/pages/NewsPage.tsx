@@ -1,6 +1,7 @@
 import { Link, useSearchParams } from "react-router-dom";
 import { PATHS } from "@/config/paths";
-import { NEWS_ARTICLES, getNewsCategory, publishedNewsCategories } from "@/data/news";
+import { NEWS_ARTICLES, getNewsCategory } from "@/data/news";
+import { NEWS_CATEGORIES } from "@/config/routes.config";
 import NewsCard from "@/components/NewsCard";
 import NewsSeo from "@/components/NewsSeo";
 
@@ -26,11 +27,11 @@ export default function NewsPage() {
       </section>
       <section className="section">
         <div className="container-wide">
-          {publishedNewsCategories.length > 0 && <nav className="news-categories" aria-label="Chuyên mục tin tức">
+          <nav className="news-categories" aria-label="Chuyên mục tin tức">
             <Link to={PATHS.NEWS} aria-current={!category ? "page" : undefined}>
               Tất cả tin tức
             </Link>
-            {publishedNewsCategories.map((item) => (
+            {NEWS_CATEGORIES.map((item) => (
               <Link
                 key={item.value}
                 to={`${PATHS.NEWS}?category=${item.value}`}
@@ -41,7 +42,7 @@ export default function NewsPage() {
                 {item.label}
               </Link>
             ))}
-          </nav>}
+          </nav>
           {articles.length > 0 ? (
             <>
               <div className="news-list-heading">
@@ -57,7 +58,8 @@ export default function NewsPage() {
             </>
           ) : (
             <div className="empty-state">
-              <p>Chưa có bài viết.</p>
+              <p>{category ? "Chuyên mục này chưa có bài viết." : "Chưa có bài viết."}</p>
+              {category && <Link className="news-read-link" to={PATHS.NEWS}>Xem tất cả tin tức</Link>}
               <Link className="button button--outline" to={PATHS.SHOP}>Khám phá sản phẩm</Link>
             </div>
           )}

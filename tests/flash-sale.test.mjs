@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { getActiveFlashSales, isFlashSaleActive } from "../src/utils/flash-sale.ts";
+import { getActiveFlashSales, getNextFlashPriceChange, isFlashSaleActive } from "../src/utils/flash-sale.ts";
 
 const sale = {
   id: "spring-sale",
@@ -56,4 +56,19 @@ test("returns only running campaigns, preserving API order and input data", () =
 test("returns an empty list when no campaigns are supplied", () => {
   assert.deepEqual(getActiveFlashSales(undefined, during), []);
   assert.deepEqual(getActiveFlashSales([], during), []);
+});
+
+test("refreshes catalog prices at the next start or end of a displayed variant", () => {
+  const variant = { flashPrice: 100, flashStartsAt: sale.startsAt, flashEndsAt: sale.endsAt };
+  const overlapping = { ...variant, flashStartsAt: new Date(during).toISOString() };
+  const products = [
+    { variants: [{ ...variant, flashPrice: undefined }, variant] },
+    { variants: [{ ...variant, flashEndsAt: "invalid" }] },
+    { variants: [variant] },
+    { variants: [overlapping] },
+  ];
+  assert.equal(getNextFlashPriceChange(products, start - 1), start);
+  assert.equal(getNextFlashPriceChange(products, start), during);
+  assert.equal(getNextFlashPriceChange(products, during), end);
+  assert.equal(getNextFlashPriceChange(products, end), undefined);
 });

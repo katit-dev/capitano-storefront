@@ -1,6 +1,7 @@
 import { useEffect, useId } from "react";
 import { useAtom } from "jotai";
 import { useLocation } from "react-router-dom";
+import BrandLogo from "@/components/BrandLogo";
 import { contentPreviewAtom } from "@/stores/contentPreviewStore";
 import "./product-preview.css";
 
@@ -42,7 +43,7 @@ export default function ContentPreviewPopup() {
         aria-labelledby={titleId}
       >
         <header className="product-preview__header">
-          <span>PAX MOLY</span>
+          <BrandLogo compact />
         </header>
         <div className="product-preview__body">
           <img

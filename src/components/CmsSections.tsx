@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { FiArrowRight, FiMail } from "react-icons/fi";
+import { useEffect, useRef, useState } from "react";
+import { FiArrowRight, FiChevronLeft, FiChevronRight, FiMail } from "react-icons/fi";
+import { PATHS } from "@/config/paths";
 import CmsLink from "./CmsLink";
 import FlashSaleCountdown from "./FlashSaleCountdown";
 import ProductCard from "./ProductCard";
@@ -8,6 +9,8 @@ import { catalogProducts } from "@/apis/product.service";
 import { cmsEnabled, subscribeNewsletter, type CmsItem, type CmsContent } from "@/hooks/data/useCmsContent";
 import "./cms-content.css";
 import { vercelBannerLayouts } from "@/config/vercel-banner-layouts";
+import type { Product } from "@/types/Product";
+import { isFlashSaleVisible } from "@/utils/flash-sale";
 export function CmsBanner({ item, module = "banners", className, imageLoading }: {
   item: CmsItem | null | undefined;
   module?: string;
@@ -26,26 +29,90 @@ export function CmsBanner({ item, module = "banners", className, imageLoading }:
     </div>}
   </section>;
 }
+
+function FlashSaleProductRow({ id, products }: { id: string; products: { product: Product; skuId: string }[] }) {
+  const track = useRef<HTMLDivElement>(null);
+  const [canScrollBack, setCanScrollBack] = useState(false);
+  const [canScrollForward, setCanScrollForward] = useState(false);
+
+  function updateControls(row: HTMLDivElement) {
+    setCanScrollBack(row.scrollLeft > 1);
+    setCanScrollForward(row.scrollLeft + row.clientWidth < row.scrollWidth - 1);
+  }
+
+  useEffect(() => {
+    const row = track.current;
+    if (!row) return;
+    const measure = () => updateControls(row);
+    const observer = new ResizeObserver(measure);
+    observer.observe(row);
+    return () => observer.disconnect();
+  }, [products.length]);
+
+  function scrollProducts(direction: -1 | 1) {
+    const row = track.current;
+    const card = row?.firstElementChild;
+    if (!row || !card) return;
+    const gap = parseFloat(window.getComputedStyle(row).columnGap);
+    row.scrollBy({
+      left: direction * (card.getBoundingClientRect().width + gap),
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+    });
+  }
+
+  const canScroll = canScrollBack || canScrollForward;
+  return (
+    <div className="flash-sale-section__products">
+      {canScroll && (
+        <div className="flash-sale-section__controls">
+          <button type="button" className="icon-button" aria-label="Xem sản phẩm trước" aria-controls={id}
+            disabled={!canScrollBack} onClick={() => scrollProducts(-1)}>
+            <FiChevronLeft aria-hidden="true" />
+          </button>
+          <button type="button" className="icon-button" aria-label="Xem sản phẩm tiếp theo" aria-controls={id}
+            disabled={!canScrollForward} onClick={() => scrollProducts(1)}>
+            <FiChevronRight aria-hidden="true" />
+          </button>
+        </div>
+      )}
+      <div ref={track} id={id} className="flash-sale-section__row" role="region" aria-label="Sản phẩm Flash Sale"
+        tabIndex={canScroll ? 0 : undefined} onScroll={event => updateControls(event.currentTarget)}>
+        {products.map(({ product, skuId }) => <ProductCard key={skuId} product={product} discountInDetails />)}
+      </div>
+    </div>
+  );
+}
+
 export function CmsFlashSales({ items = [], productTypes = [] }: { items?: CmsItem[]; productTypes?: CmsContent["productTypes"] }) {
   const [now, setNow] = useState(Date.now);
-  return <>{items.filter(item => item.isActive && (item.showAfterEnd || now < Date.parse(item.endsAt || ""))).map(item => {
+  return <>{items.filter(item => isFlashSaleVisible(item, now)).map(item => {
+    const titleId = `flash-sale-title-${item.id}`;
     const productsId = `flash-sale-products-${item.id}`;
     const products = (item.products || []).flatMap(row => catalogProducts({ products: [row], productTypes }, now)
       .map(product => ({ product, skuId: row.variants[0].id })));
     const customLink = item.buttonLinkUrl?.trim();
-    return <section key={item.id} className="section flash-sale-section" id={`flash-sale-${item.id}`} data-cms-record={item.id} data-cms-module="flashSales">
-      <div className="container-wide commerce-heading">
-        <div className="flash-sale-section__copy">
-          {item.subtitle && <p className="eyebrow">{item.subtitle}</p>}
-          <h2>{item.title}</h2>
-          <CmsLink className="button button--primary flash-sale-section__button" to={customLink || `#${productsId}`} openInNewTab={Boolean(customLink && item.openInNewTab)}>
-            {item.buttonLabel?.trim() || "Xem ngay"}<FiArrowRight aria-hidden="true" />
-          </CmsLink>
+    const offersLink = `${PATHS.SHOP}?${new URLSearchParams({ flashSale: item.id })}`;
+    return <section key={item.id} className="flash-sale-section" id={`flash-sale-${item.id}`} aria-labelledby={titleId} data-cms-record={item.id} data-cms-module="flashSales">
+      <div className="container-wide">
+        <div className="flash-sale-section__header">
+          <div className="flash-sale-section__copy">
+            <h2 id={titleId}>{item.title?.trim() || "Flash Sale"}</h2>
+            {item.subtitle?.trim() && <p>{item.subtitle}</p>}
+            <CmsLink className="button button--primary flash-sale-section__button" to={customLink || offersLink} openInNewTab={Boolean(customLink && item.openInNewTab)}>
+              {item.buttonLabel?.trim() || "Xem ưu đãi"} <FiArrowRight aria-hidden="true" />
+            </CmsLink>
+          </div>
+          <div className="flash-sale-section__timer">
+            <FlashSaleCountdown
+              compact
+              startsAt={item.startsAt}
+              endsAt={item.endsAt}
+              showDigits={item.showCountdown !== false}
+              onTick={setNow}
+            />
+          </div>
         </div>
-        <FlashSaleCountdown startsAt={item.startsAt} endsAt={item.endsAt} showDigits={item.showCountdown !== false} onTick={setNow} />
-      </div>
-      <div className="container-wide flash-sale-section__products" id={productsId}>
-        {products.length ? <div className="product-grid flash-sale-grid">{products.map(({ product, skuId }) => <ProductCard key={skuId} product={product} />)}</div>
+        {products.length > 0 ? <FlashSaleProductRow id={productsId} products={products} />
           : <p className="flash-sale-section__empty">Ưu đãi đang được cập nhật.</p>}
       </div>
     </section>;

@@ -5,6 +5,7 @@ import ProductCard from "@/components/ProductCard";
 import { catalogProducts, filterProducts } from "@/apis/product.service";
 import { useCmsContent } from "@/hooks/data/useCmsContent";
 import type { ProductBodyArea, ProductCategory, ProductSkinType } from "@/types/Product";
+import { isFlashSaleVisible } from "@/utils/flash-sale";
 
 type CategoryFilter = ProductCategory | "all";
 const sortOrders = ["featured", "bestSeller", "newest", "priceAsc", "priceDesc"] as const;
@@ -62,7 +63,12 @@ export default function ShopPage() {
   const minPrice = Math.min(readPriceParam(params.get("minPrice")) ?? 0, MAX_PRICE);
   const maxPrice = Math.max(minPrice, Math.min(readPriceParam(params.get("maxPrice")) ?? MAX_PRICE, MAX_PRICE));
   const discountOnly = params.get("discount") === "1";
-  const flashSaleOnly = params.get("flashSale") === "1";
+  const flashSaleFilter = params.get("flashSale") ?? "";
+  const flashSaleOnly = Boolean(flashSaleFilter);
+  const campaignId = flashSaleFilter !== "1" ? flashSaleFilter : "";
+  const campaign = campaignId
+    ? content?.flashSales?.find(sale => sale.id === campaignId && isFlashSaleVisible(sale))
+    : undefined;
   const sort = sortOrders.find(order => order === params.get("sort")) ?? "featured";
   const focusSearch = params.get("focus") === "search";
   const [draft, setDraft] = useState<FilterDraft | null>(null);
@@ -80,11 +86,12 @@ export default function ShopPage() {
       ? { ...product, isBestSeller: demoBestSellers.has(product.slug) }
       : { ...product, publishedAt: demoPublicationDates.get(product.slug) }),
   } : content;
+  const campaignProductIds = new Set(campaign?.products?.map(product => product.id));
   const products = sortContent ? filterProducts(sortContent, {
     collection: collection?.id, category, skinType, bodyArea, search, concern,
     minPrice: minPrice || undefined, maxPrice: maxPrice < MAX_PRICE ? maxPrice : undefined,
-    discountOnly, flashSaleOnly, sort: missingSortData && !showDemoSort ? "featured" : sort,
-  }) : [];
+    discountOnly, flashSaleOnly: flashSaleFilter === "1", sort: missingSortData && !showDemoSort ? "featured" : sort,
+  }).filter(product => !campaignId || campaignProductIds.has(product.id)) : [];
   const sortAvailabilityMessage = missingSortData && !showDemoSort && catalog.length > 0
     ? "Chưa có dữ liệu cho cách sắp xếp này." : "";
 
@@ -166,7 +173,7 @@ export default function ShopPage() {
       minPrice: selection.minPrice > 0 ? String(selection.minPrice) : "",
       maxPrice: selection.maxPrice < MAX_PRICE ? String(selection.maxPrice) : "",
       discount: selection.discountOnly ? "1" : "",
-      flashSale: selection.flashSaleOnly ? "1" : "",
+      flashSale: selection.flashSaleOnly ? flashSaleFilter || "1" : "",
       sort: selection.sort === "featured" ? "" : selection.sort,
     });
     setDraft(null);
@@ -267,7 +274,7 @@ export default function ShopPage() {
                           type="checkbox"
                           checked={draft.flashSaleOnly}
                           onChange={(event) => setDraft({ ...draft, flashSaleOnly: event.target.checked })}
-                        /> Đang Flash Sale
+                        /> {campaign ? "Sản phẩm trong chiến dịch" : "Đang Flash Sale"}
                       </label>
                     </div>
                     <div className="shop-filter-actions">
@@ -293,7 +300,7 @@ export default function ShopPage() {
           </div>
           {sortAvailabilityMessage && <p id="shop-sort-availability" className="shop-sort-note">{sortAvailabilityMessage}</p>}
 
-          {(collection || category !== "all" || skinType || bodyArea || concern) && <p className="shop-selection-label">Đang xem: {[collection?.name, category !== "all" ? categories.find((item) => item.value === category)?.label : null, SKIN_TYPES.find((item) => item.value === skinType)?.label, BODY_AREAS.find((item) => item.value === bodyArea)?.label, concern].filter(Boolean).join(" · ")}</p>}
+          {(campaign || collection || category !== "all" || skinType || bodyArea || concern) && <p className="shop-selection-label">Đang xem: {[campaign?.title, collection?.name, category !== "all" ? categories.find((item) => item.value === category)?.label : null, SKIN_TYPES.find((item) => item.value === skinType)?.label, BODY_AREAS.find((item) => item.value === bodyArea)?.label, concern].filter(Boolean).join(" · ")}</p>}
           <div className="shop-result-meta" data-template-fixed="shop-result-meta">
             <p aria-live="polite"><FiSliders /> {cms.isLoading ? "Đang lọc sản phẩm…" : `${products.length} sản phẩm`}</p>
           </div>

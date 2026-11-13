@@ -11,22 +11,30 @@ import FlashSaleAnnouncement from "@/components/FlashSaleAnnouncement";
 import ContentPreviewPopup from "@/components/ContentPreviewPopup";
 import { contentPreviewAtom } from "@/stores/contentPreviewStore";
 import { PATHS } from "@/config/paths";
-import { capitanoAnnouncement, capitanoContent } from "@/data/capitano-catalog";
+import { capitanoAnnouncement, capitanoContent, capitanoNewsMenu } from "@/data/capitano-catalog";
 import { cartItemsAtom, cartDrawerOpenAtom } from "@/stores/cartStore";
 
-import { useCmsContent, menuTree, recordSiteVisit } from "@/hooks/data/useCmsContent";
+import { useCmsContent, useRestartLocalFlashSale, menuTree, recordSiteVisit } from "@/hooks/data/useCmsContent";
 import CmsLink from "@/components/CmsLink";
 import { previewEnabled, usePreviewFocus } from "@/hooks/data/cmsPreview";
 
 export default function SiteLayout() {
   usePreviewFocus();
   const cms = useCmsContent("home");
+  const restartLocalFlashSale = useRestartLocalFlashSale();
   const content = cms.data?.content;
   const header = content?.header;
   const showLocalHeader = !previewEnabled && !content;
   const localHeader = cms.isLocal || showLocalHeader;
   const announcement = (showLocalHeader ? capitanoContent : content)?.announcement;
   const navigation = menuTree(showLocalHeader ? capitanoContent.menu : content?.menu || []);
+  if (!previewEnabled && !localHeader) {
+    const [news] = menuTree(capitanoNewsMenu);
+    const newsIndex = navigation.findIndex(item =>
+      item.to === PATHS.NEWS || item.label.trim().toLocaleLowerCase("vi") === "tin tức");
+    if (newsIndex === -1) navigation.push(news);
+    else navigation[newsIndex] = news;
+  }
   const logoSrc = header?.logoUrl || undefined;
   const logoAlt = logoSrc ? header?.logoAlt || "Pasta del Capitano" : undefined;
   const [menuOpen, setMenuOpen] = useState(false);
@@ -129,6 +137,13 @@ export default function SiteLayout() {
         <SiteNavigation mobile items={navigation} onNavigate={() => setMenuOpen(false)} />
       </dialog>
 
+      {import.meta.env.DEV && restartLocalFlashSale && (
+        <div className="container-wide py-3">
+          <button className="button button--outline" type="button" onClick={restartLocalFlashSale}>
+            Chạy lại Flash Sale mẫu
+          </button>
+        </div>
+      )}
       <main id="main-content"><Outlet /></main>
       <SiteFooter />
       {!menuOpen && !cartOpen && <FloatingSupport />}

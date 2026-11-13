@@ -18,10 +18,12 @@ export default function ProductCard({
   product,
   priority = false,
   lineLabel,
+  discountInDetails = false,
 }: {
   product: Product;
   priority?: boolean;
   lineLabel?: string;
+  discountInDetails?: boolean;
 }) {
   const addToCart = useSetAtom(addToCartAtom);
   const preview = useProductPreview(product);
@@ -31,6 +33,11 @@ export default function ProductCard({
   const discountPercent = getDiscountPercent(
     product.price,
     product.compareAtPrice,
+  );
+  const discountBadge = discountPercent === null ? null : (
+    <span className={discountInDetails ? "product-card__sale product-card__sale--details" : "product-card__sale"}>
+      {discountPercent > 0 ? `Giảm ${discountPercent}%` : "Giảm giá"}
+    </span>
   );
 
   return (
@@ -52,9 +59,7 @@ export default function ProductCard({
             Bestseller
           </span>
         ) : null}
-        {discountPercent !== null ? (
-          <span className="product-card__sale">{discountPercent > 0 ? `Giảm ${discountPercent}%` : "Giảm giá"}</span>
-        ) : null}
+        {!discountInDetails && discountBadge}
         <img
           src={product.catalogImage || product.image}
           alt={product.name}
@@ -68,6 +73,7 @@ export default function ProductCard({
       <div className="product-card__body">
         <div className="product-card__info">
           {label && <p className="eyebrow">{label}</p>}
+          {discountInDetails && discountBadge}
           <Link
             to={PATHS.product(product.slug)}
             className="product-card__title"
