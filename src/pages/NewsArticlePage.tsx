@@ -126,11 +126,6 @@ export default function NewsArticlePage() {
                   </li>
                 ))}
               </ul>
-              <p>
-                Thông tin chăm sóc da mang tính tham khảo. Với phản ứng kéo dài
-                hoặc tình trạng da cần điều trị, hãy trao đổi với bác sĩ da
-                liễu.
-              </p>
             </section>
             <Link className="news-read-link" to={PATHS.NEWS}>
               ← Xem tất cả bài viết
@@ -138,7 +133,7 @@ export default function NewsArticlePage() {
           </div>
         </div>
       </article>
-      <section className="section news-related">
+      {products.length > 0 && <section className="section news-related">
         <div className="container-wide">
           <div className="news-list-heading">
             <h2>Sản phẩm được nhắc đến</h2>
@@ -155,8 +150,8 @@ export default function NewsArticlePage() {
             ))}
           </div>
         </div>
-      </section>
-      <section className="section">
+      </section>}
+      {related.length > 0 && <section className="section">
         <div className="container-wide">
           <div className="news-list-heading">
             <h2>Đọc thêm</h2>
@@ -167,7 +162,7 @@ export default function NewsArticlePage() {
             ))}
           </div>
         </div>
-      </section>
+      </section>}
     </div>
   );
 }

@@ -76,7 +76,7 @@ export default function FlashSalePopup({ sales, open, onShown, onClose, onViewOf
           <button className="flash-sale-popup__close" type="button" aria-label="Đóng thông báo Flash Sale" onClick={onClose} autoFocus>
             <FiX aria-hidden="true" />
           </button>
-          <span className="flash-sale-popup__brand">PAX MOLY</span>
+          <span className="flash-sale-popup__brand">PASTA DEL CAPITANO</span>
           <div className="flash-sale-popup__label"><FiZap aria-hidden="true" /><span>Flash Sale</span></div>
           <span className="flash-sale-popup__status">Đang diễn ra</span>
         </div>

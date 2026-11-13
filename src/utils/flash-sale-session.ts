@@ -8,7 +8,7 @@ function browserSessionStorage(): SessionStorage | undefined {
   }
 }
 
-export function createFlashSaleSession(siteCode = "paxmoly", storage = browserSessionStorage()) {
+export function createFlashSaleSession(siteCode = "capitano", storage = browserSessionStorage()) {
   const key = `cms:${siteCode}:flash-sale:seen`;
   const seen = new Set<string>();
 

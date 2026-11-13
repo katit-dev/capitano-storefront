@@ -1,7 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useReducer } from "react";
 import { capitanoContent } from "@/data/capitano-catalog";
+import { readLocalFlashSaleStart, saveLocalFlashSaleStart, withLocalFlashSale } from "@/data/local-flash-sale";
 import type { PageContent } from "@/types/Page";
 import type { NavigationItem } from "@/config/routes.config";
+import { getNextFlashPriceChange } from "@/utils/flash-sale";
 import { previewEnabled, usePreviewSnapshot } from "./cmsPreview";
 export type CmsItem = {
   id: string; isActive: boolean; sortOrder?: number; parentId?: string | null; productLineId?: string | null; products?: CatalogProduct[];
@@ -49,13 +53,59 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   if (!result.success) throw new Error(result.message || "Yêu cầu chưa thành công.");
   return result.data;
 }
+
 export function fetchCmsPage(slug: string, signal?: AbortSignal) {
   return request<CmsPage>("pages/" + encodeURIComponent(slug), { signal });
 }
 
-const localData = { content: capitanoContent };
+const localFlashSaleEnabled = import.meta.env.DEV && !cmsEnabled && import.meta.env.VITE_LOCAL_FLASH_SALE === "1";
+const localFlashSaleStartAtom = atom(import.meta.env.DEV && localFlashSaleEnabled ? readLocalFlashSaleStart() : null);
+const localDataAtom = atom(get => {
+  if (import.meta.env.DEV && localFlashSaleEnabled) {
+    const start = get(localFlashSaleStartAtom);
+    if (start !== null) return { content: withLocalFlashSale(capitanoContent, start) };
+  }
+  return { content: capitanoContent };
+});
+
+export function useRestartLocalFlashSale() {
+  const setStart = useSetAtom(localFlashSaleStartAtom);
+  if (!import.meta.env.DEV || !localFlashSaleEnabled || previewEnabled) return undefined;
+
+  return () => {
+    const start = Date.now();
+    saveLocalFlashSaleStart(start);
+    setStart(start);
+  };
+}
+
+function useFlashPriceUpdates(products?: CatalogProduct[]) {
+  const [, refresh] = useReducer(value => value + 1, 0);
+  useEffect(() => {
+    if (!products?.some(product => product.variants[0]?.flashPrice != null)) return;
+    let timer: number | undefined;
+    function schedule() {
+      const now = Date.now();
+      const next = getNextFlashPriceChange(products, now);
+      if (next === undefined) return;
+      timer = window.setTimeout(update, Math.min(next - now, 2_147_483_647));
+    }
+    function update() {
+      window.clearTimeout(timer);
+      refresh();
+      schedule();
+    }
+    schedule();
+    window.addEventListener("focus", update);
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("focus", update);
+    };
+  }, [products]);
+}
 
 export function useCmsContent(page: "home" | "shop") {
+  const localData = useAtomValue(localDataAtom);
   const preview = usePreviewSnapshot();
   const query = useQuery({
     queryKey: ["cms", base, code, page],
@@ -67,10 +117,13 @@ export function useCmsContent(page: "home" | "shop") {
     refetchOnWindowFocus: true,
   });
 
+  const isLocal = !previewEnabled && (!cmsEnabled || (query.isError && !query.data));
+  useFlashPriceUpdates(previewEnabled ? undefined : (isLocal ? localData : query.data)?.content.products);
+
   if (previewEnabled && preview) {
     return { ...query, data: { content: preview.content }, isPending: false, isLoading: false, isError: false, isLocal: false };
   }
-  if (!previewEnabled && (!cmsEnabled || (query.isError && !query.data))) {
+  if (isLocal) {
     return { ...query, data: localData, isPending: false, isLoading: false, isError: false, isLocal: true };
   }
   return { ...query, isError: query.isError && !query.data, isLocal: false };

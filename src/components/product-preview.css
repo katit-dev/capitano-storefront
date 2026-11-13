@@ -4,7 +4,7 @@
   z-index: 2000;
   display: grid;
   place-items: center;
-  background: rgb(33 29 25 / 65%);
+  background: rgb(0 40 86 / 58%);
   pointer-events: none;
 }
 .product-preview-layer * {
@@ -35,23 +35,20 @@
   border-radius: 18px;
   color: var(--brown);
   background: var(--white);
-  box-shadow: 0 24px 80px rgb(68 50 39 / 24%);
+  box-shadow: 0 24px 80px rgb(0 40 86 / 24%);
 }
 .product-preview__header {
   display: flex;
   flex-shrink: 0;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 16px 20px;
+  justify-content: center;
+  padding: 8px 16px;
   border-bottom: 1px solid var(--line);
   background: var(--green-mist);
 }
-.product-preview__header > span {
-  font:
-    600 0.75rem/1.5 "Montserrat",
-    sans-serif;
-  letter-spacing: 0.1em;
+.product-preview__header .brand-logo img {
+  width: 88px;
+  height: 42px;
 }
 .product-preview__body {
   min-height: 0;

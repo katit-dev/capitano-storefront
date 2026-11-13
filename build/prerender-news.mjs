@@ -7,7 +7,11 @@ const template = await readFile(join(output, "index.html"), "utf8");
 const manifest = JSON.parse(
   await readFile(join(output, ".vite/manifest.json"), "utf8"),
 );
+process.env.NODE_ENV = "production";
 const server = await createServer({
+  mode: "production",
+  // Prerendering must not overwrite the development server's React cache.
+  cacheDir: "node_modules/.vite-prerender-news",
   server: { middlewareMode: true },
   appType: "custom",
 });

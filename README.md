@@ -9,7 +9,7 @@ Website giới thiệu sản phẩm chăm sóc răng miệng Pasta del Capitano 
 - Trang chi tiết có ảnh, giá, dung tích, thành phần và nút thêm vào giỏ.
 - Giỏ hàng lưu trên trình duyệt bằng Jotai và `localStorage`.
 - Trang thanh toán là bản xem trước giao diện. Việc tạo đơn và thanh toán thật thuộc giai đoạn sau.
-- Storefront dùng catalog local khi chưa cấu hình CMS hoặc khi CMS gặp lỗi và chưa có dữ liệu đã tải. Nội dung Tin tức và cấu hình SEO kế thừa từ PaxMoly cần được cập nhật trước khi công bố site Capitano.
+- Storefront dùng catalog local khi chưa cấu hình CMS hoặc khi CMS gặp lỗi và chưa có dữ liệu đã tải. Trang Tin tức có sẵn ba chuyên mục; bài viết mẫu chỉ có khi chạy môi trường phát triển.
 
 ## Công nghệ
 
@@ -65,12 +65,13 @@ build/prerender-news.mjs    Tạo HTML tĩnh cho Tin tức trong bản build
 tests/                      Bài kiểm thử hiện có
 ```
 
-| Đường dẫn         | Trang                |
-| ----------------- | -------------------- |
-| `/`               | Trang chủ            |
-| `/cua-hang`       | Tất cả sản phẩm      |
-| `/san-pham/:slug` | Chi tiết sản phẩm    |
-| `/thanh-toan`     | Xem trước thanh toán |
+| Đường dẫn         | Trang                 |
+| ----------------- | --------------------- |
+| `/`               | Trang chủ             |
+| `/cua-hang`       | Tất cả sản phẩm       |
+| `/san-pham/:slug` | Chi tiết sản phẩm     |
+| `/tin-tuc`        | Tin tức và chuyên mục |
+| `/thanh-toan`     | Xem trước thanh toán  |
 
 ## Cấu hình CMS
 
@@ -83,6 +84,10 @@ Dùng [`.env.example`](./.env.example) làm mẫu nếu cần kết nối CMS kh
 | `VITE_CMS_ADMIN_URL` | Địa chỉ CMS admin được phép mở bản xem trước |
 
 Các biến `VITE_*` có thể đọc được từ trình duyệt. Giữ token, mật khẩu và khóa triển khai trong nơi quản lý secrets của môi trường tương ứng.
+
+Để thử Flash Sale local, đặt `VITE_LOCAL_FLASH_SALE=1` và giữ `VITE_CMS_API_URL=` trong `.env.development.local`, rồi chạy lại `npm run dev`. Bấm **Chạy lại Flash Sale mẫu** dưới thanh điều hướng để mở popup và bắt đầu một lượt 5 phút cho hai SKU CAP012 và CAP018. Khi tải lại cùng tab, đồng hồ tiếp tục theo giờ kết thúc đã lưu và popup đã xem sẽ không hiện lại. Sau khi hết giờ, bấm nút demo để chạy lượt mới. Nút **Xem ưu đãi** dẫn đến khu Flash Sale trên trang chủ.
+
+Dữ liệu ưu đãi mẫu không chạy khi đã kết nối CMS hoặc trong bản build chính thức. Bản chính thức lấy chiến dịch và giá từ CMS; đặt giờ bắt đầu, kết thúc và giá Flash Sale cho đúng SKU của chiến dịch.
 
 ## Tài liệu và triển khai
 

@@ -1,6 +1,6 @@
 import type { CatalogProduct, CatalogType, CmsContent } from "@/hooks/data/useCmsContent";
 import { PATHS } from "@/config/paths";
-import { publishedNewsCategories } from "@/data/news";
+import { NEWS_CATEGORIES } from "@/config/routes.config";
 import picareLogo from "@/assets/brand/picare-logo-dark.png";
 import frescoBanner from "@/assets/brand/banner xịt thơm miệng - trong -suot.png";
 import cap001 from "@/assets/products/catalog/CAP001.png";
@@ -571,6 +571,17 @@ export const capitanoAnnouncement = {
   mobileMessage: "Capitano Việt Nam",
 };
 
+export const capitanoNewsMenu: CmsContent["menu"] = [
+  { id: "news", isActive: true, label: "Tin tức", linkUrl: PATHS.NEWS },
+  ...NEWS_CATEGORIES.map(category => ({
+    id: `news-category-${category.value}`,
+    parentId: "news",
+    isActive: true,
+    label: category.label,
+    linkUrl: `${PATHS.NEWS}?category=${category.value}`,
+  })),
+];
+
 export const capitanoContent: CmsContent = {
   announcement: capitanoAnnouncement,
   header: { id: "capitano-header", isActive: true, showCart: true },
@@ -593,15 +604,7 @@ export const capitanoContent: CmsContent = {
       label: id === "junior" ? "Kem đánh răng trẻ em" : lines[id].name,
       linkUrl: `${PATHS.SHOP}?collection=${id}`,
     })),
-    { id: "news", isActive: true, label: "Tin tức" },
-    { id: "news-all", parentId: "news", isActive: true, label: "Tất cả tin tức", linkUrl: PATHS.NEWS },
-    ...publishedNewsCategories.map(category => ({
-      id: `news-category-${category.value}`,
-      parentId: "news",
-      isActive: true,
-      label: category.label,
-      linkUrl: `${PATHS.NEWS}?category=${category.value}`,
-    })),
+    ...capitanoNewsMenu,
   ],
   newsletter: {
     id: "capitano-newsletter",
