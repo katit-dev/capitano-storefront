@@ -1,5 +1,4 @@
-import { useRef, useState } from "react";
-import { FiInstagram, FiShoppingBag, FiX } from "react-icons/fi";
+import { FiInstagram, FiShoppingBag } from "react-icons/fi";
 import { FaFacebookF, FaTiktok } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import picareLogo from "@/assets/brand/picare-logo-green-transparent.png";
@@ -9,33 +8,13 @@ import { PATHS } from "@/config/paths";
 import CmsLink from "@/components/CmsLink";
 import { useCmsContent } from "@/hooks/data/useCmsContent";
 
-const policies = [
-  "Chính sách bảo mật thông tin",
-  "Chính sách vận chuyển, giao hàng",
-  "Chính sách thanh toán",
-  "Chính sách kiểm hàng",
-  "Chính sách quy định chung",
-];
-const customerCare = [
-  "Hướng dẫn mua hàng",
-  "Hình thức thanh toán",
-  "Kiểm tra đơn hàng",
-  "Quyền lợi thành viên",
-];
-
 export default function SiteFooter() {
   const { data } = useCmsContent("home");
   const badge = data?.content.footer;
-  const infoDialog = useRef<HTMLDialogElement>(null);
-  const [topic, setTopic] = useState("");
-
-  function showInfo(title: string) {
-    setTopic(title);
-    infoDialog.current?.showModal();
-  }
+  const groups = data?.content.footerGroups?.filter(group => group.links.length > 0) || [];
 
   return (
-    <footer className="site-footer">
+    <footer className="site-footer" id="lien-he">
       <div className="container-wide site-footer__grid">
         <div className="site-footer__brand">
           <Link
@@ -127,71 +106,24 @@ export default function SiteFooter() {
           </address>
         </section>
 
-        <nav
-          className="site-footer__links"
-          aria-labelledby="footer-policy-title"
-        >
-          <h2 id="footer-policy-title">Chính sách</h2>
-          <ul>
-            {policies.map((title) => (
-              <li key={title}>
-                <button type="button" onClick={() => showInfo(title)}>
-                  {title}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <nav className="site-footer__links" aria-labelledby="footer-care-title">
-          <h2 id="footer-care-title">Chăm sóc khách hàng</h2>
-          <ul>
-            {customerCare.map((title) => (
-              <li key={title}>
-                <button type="button" onClick={() => showInfo(title)}>
-                  {title}
-                </button>
-              </li>
-            ))}
-            <li>
-              <a href={CONTACT.emailHref}>Liên hệ</a>
-            </li>
-          </ul>
-        </nav>
+        {groups.map(group => (
+          <nav key={group.id} className="site-footer__links" aria-labelledby={"footer-group-" + group.id}>
+            <h2 id={"footer-group-" + group.id}>{group.title}</h2>
+            <ul>
+              {group.links.map(link => (
+                <li key={link.id}>
+                  <CmsLink to={link.linkUrl} openInNewTab={link.openInNewTab}>{link.label}</CmsLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))}
       </div>
 
       <div className="container-wide site-footer__bottom">
         <span>© {new Date().getFullYear()} Pasta del Capitano Việt Nam</span>
         <span>Picare · Do More For A Better Life</span>
       </div>
-
-      <dialog
-        ref={infoDialog}
-        className="footer-info-dialog"
-        aria-labelledby="footer-info-title"
-        onClick={(event) => {
-          if (event.target === event.currentTarget) infoDialog.current?.close();
-        }}
-      >
-        <div className="footer-info-dialog__content">
-          <button
-            className="footer-info-dialog__close"
-            type="button"
-            autoFocus
-            aria-label="Đóng thông tin"
-            onClick={() => infoDialog.current?.close()}
-          >
-            <FiX />
-          </button>
-          <h2 id="footer-info-title">{topic}</h2>
-          <p>
-            Nội dung này đang được cập nhật. Bạn có thể liên hệ đội ngũ Picare /
-            Dermacoon để được hỗ trợ.
-          </p>
-          <a href={CONTACT.phoneHref}>Gọi {CONTACT.phone}</a>
-          <a href={CONTACT.emailHref}>{CONTACT.email}</a>
-        </div>
-      </dialog>
     </footer>
   );
 }
