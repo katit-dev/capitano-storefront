@@ -35,7 +35,7 @@ jobs:
       - name: Set image repository
         id: image
         shell: bash
-        run: echo "repository=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/picare-paxmoly-client" >> "$GITHUB_OUTPUT"
+        run: echo "repository=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/picare-capitano-client" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
