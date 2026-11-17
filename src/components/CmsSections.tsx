@@ -6,7 +6,7 @@ import FlashSaleCountdown from "./FlashSaleCountdown";
 import ProductCard from "./ProductCard";
 import SkinNeedCard from "./SkinNeedCard";
 import { catalogProducts } from "@/apis/product.service";
-import { cmsEnabled, subscribeNewsletter, type CmsItem, type CmsContent } from "@/hooks/data/useCmsContent";
+import { cmsEnabled, useCmsContent, subscribeNewsletter, type CmsItem, type CmsContent } from "@/hooks/data/useCmsContent";
 import "./cms-content.css";
 import { vercelBannerLayouts } from "@/config/vercel-banner-layouts";
 import type { Product } from "@/types/Product";
@@ -126,6 +126,9 @@ export function CmsSkinNeeds({ section, items = [], id = "nhu-cau-lan-da" }: { s
   </div></section>;
 }
 export function CmsNewsletter({ item }: { item: CmsItem | null | undefined }) {
+  const { data } = useCmsContent("home");
+  const privacyLink = data?.content.footerGroups?.flatMap(group => group.links).find(link => /bảo mật/i.test(link.label));
+  const [privacyConsent, setPrivacyConsent] = useState(false);
   const [email, setEmail] = useState("");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
@@ -144,13 +147,15 @@ export function CmsNewsletter({ item }: { item: CmsItem | null | undefined }) {
         <form className="newsletter__form" onSubmit={async event => {
           event.preventDefault();
           if (pending) return;
+          if (!privacyConsent) { setFailed(true); setMessage("Vui lòng đồng ý nhận tin và chính sách bảo mật."); return; }
           setPending(true);
           setMessage("");
           setFailed(false);
           try {
-            const result = await subscribeNewsletter(email.trim());
+            const result = await subscribeNewsletter(email.trim(), privacyConsent);
             setMessage(result.message || item.successMessage || "Đăng ký thành công.");
             setEmail("");
+            setPrivacyConsent(false);
           } catch {
             setFailed(true);
             setMessage(cmsEnabled
@@ -174,6 +179,10 @@ export function CmsNewsletter({ item }: { item: CmsItem | null | undefined }) {
             />
             <button type="submit" disabled={pending}>{pending ? "Đang đăng ký…" : item.buttonLabel || "Đăng ký"}</button>
           </div>
+          <label className="newsletter__consent">
+            <input type="checkbox" name="privacyConsent" checked={privacyConsent} onChange={event => setPrivacyConsent(event.target.checked)} required disabled={pending} />
+            <span>Tôi đồng ý nhận tin qua email và cho phép xử lý email theo <CmsLink to={privacyLink?.linkUrl || "/chinh-sach-bao-mat-thong-tin"} openInNewTab>Chính sách bảo mật</CmsLink>.</span>
+          </label>
           {message && <p className="newsletter__status" role={failed ? "alert" : "status"}>{message}</p>}
         </form>
       </div>

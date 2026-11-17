@@ -3,3 +3,7 @@
 .cms-banner__actions { position: absolute; left: clamp(1rem, 4vw, 4rem); right: clamp(1rem, 4vw, 4rem); bottom: clamp(1rem, 4vw, 4rem); display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .cms-banner__actions .button { max-width: 100%; overflow-wrap: anywhere; text-align: center; }
 @media (max-width: 600px) { .cms-banner__actions { position: static; margin: 1rem; } }
+
+.newsletter__consent { display: flex; align-items: flex-start; gap: 10px; min-height: 44px; margin-top: 12px; color: var(--brown); font-size: 0.875rem; line-height: 1.6; cursor: pointer; }
+.newsletter .newsletter__consent input { flex: 0 0 20px; width: 20px; height: 20px; min-height: 20px; margin: 2px 0 0; padding: 0; accent-color: var(--green-dark); cursor: pointer; }
+.newsletter__consent a { color: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }

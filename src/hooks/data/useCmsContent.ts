@@ -128,10 +128,11 @@ export function useCmsContent(page: "home" | "shop") {
   }
   return { ...query, isError: query.isError && !query.data, isLocal: false };
 }
-export function subscribeNewsletter(email: string) {
+export function subscribeNewsletter(email: string, privacyConsent: boolean) {
+  if (privacyConsent !== true) return Promise.reject(new Error("Vui lòng đồng ý nhận tin và chính sách bảo mật."));
   if (previewEnabled) return Promise.reject(new Error("Form đăng ký chỉ hoạt động trên website thật."));
   if (!cmsEnabled) return Promise.reject(new Error("Đăng ký nhận tin chưa sẵn sàng."));
-  return request<{ message: string }>("newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) });
+  return request<{ message: string }>("newsletter", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, privacyConsent }) });
 }
 export function menuTree(rows: CmsItem[], parentId: string | null = null): NavigationItem[] {
   return rows.filter(row => (row.parentId || null) === parentId).map(row => ({ id: row.id, label: row.label || "", to: row.linkUrl || "#", openInNewTab: row.openInNewTab, children: menuTree(rows, row.id) }));

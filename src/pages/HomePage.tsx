@@ -1,6 +1,5 @@
 import { FiArrowRight } from "react-icons/fi";
 import { Link } from "react-router-dom";
-import capitanoHero from "@/assets/brand/banner-dau-trang-trong-suot.png";
 import ProductCard from "@/components/ProductCard";
 import StoreAssurance from "@/components/StoreAssurance";
 import { PATHS } from "@/config/paths";
@@ -16,29 +15,8 @@ export default function HomePage() {
   const products = catalogProducts(content);
   const featured = products.filter(product => product.isFeatured);
   return <>
-    {cms.isLocal ? (
-      <section className="capitano-hero" aria-labelledby="capitano-hero-title">
-        <div className="container-wide capitano-hero__layout">
-          <div className="capitano-hero__copy">
-            <p className="capitano-hero__heritage">Từ năm 1905</p>
-            <h1 id="capitano-hero-title">Chăm sóc răng miệng từ Ý</h1>
-            <p className="capitano-hero__description">Kem đánh răng, nước súc miệng và xịt thơm miệng cho nhu cầu hằng ngày.</p>
-            <Link className="button button--primary" to={PATHS.SHOP}>
-              Khám phá sản phẩm <FiArrowRight aria-hidden="true" />
-            </Link>
-          </div>
-          <div className="capitano-hero__artwork">
-            <img
-              src={capitanoHero}
-              alt="Các tuýp kem đánh răng Pasta del Capitano dòng 1905"
-              width="1983"
-              height="793"
-              fetchPriority="high"
-            />
-          </div>
-        </div>
-      </section>
-    ) : content.banners?.map(item => <CmsBanner key={item.id} item={item} />)}
+    <h1 className="sr-only">Pasta del Capitano · Chăm sóc răng miệng từ Ý</h1>
+    {content.banners?.map((item, index) => <CmsBanner key={item.id} item={item} imageLoading={index === 0 ? "eager" : "lazy"} />)}
     <StoreAssurance />
     <CmsFlashSales items={content.flashSales} productTypes={content.productTypes} />
     {featured.length > 0 && (

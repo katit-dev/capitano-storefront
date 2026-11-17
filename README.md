@@ -82,6 +82,7 @@ Dùng [`.env.example`](./.env.example) làm mẫu nếu cần kết nối CMS kh
 | `VITE_CMS_API_URL`   | Địa chỉ API nội dung công khai               |
 | `VITE_CMS_SITE_CODE` | Mã site, dùng `capitano`                     |
 | `VITE_CMS_ADMIN_URL` | Địa chỉ CMS admin được phép mở bản xem trước |
+| `VITE_SITE_ORIGIN` | Domain chính thức: `https://pastadelcapitano.vn`, dùng cho canonical và sitemap |
 
 Các biến `VITE_*` có thể đọc được từ trình duyệt. Giữ token, mật khẩu và khóa triển khai trong nơi quản lý secrets của môi trường tương ứng.
 

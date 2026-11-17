@@ -6978,77 +6978,6 @@ input:focus-visible {
 
 .site-header--local .header-action { width: 44px; height: 44px; }
 
-.capitano-hero {
-  border-bottom: 1px solid var(--line);
-  background: linear-gradient(110deg, var(--cream), #e5eef9);
-}
-
-.capitano-hero__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  align-items: center;
-  gap: clamp(20px, 4vw, 48px);
-  padding-block: clamp(28px, 4.4vw, 68px);
-}
-
-.capitano-hero__heritage {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  color: var(--green-deep);
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.capitano-hero__heritage::before {
-  width: 24px;
-  height: 6px;
-  border: 1px solid var(--line);
-  background: linear-gradient(to right, var(--green) 33.33%, var(--white) 33.33% 66.67%, var(--gold) 66.67%);
-  content: "";
-}
-
-.capitano-hero__copy h1 {
-  color: var(--green-deep);
-  font-family: "Montserrat", sans-serif;
-  font-size: clamp(2rem, 4.7vw, 4.5rem);
-  font-weight: 700;
-  letter-spacing: -0.045em;
-  line-height: 1.08;
-  text-wrap: balance;
-}
-
-.capitano-hero__description {
-  max-width: 42ch;
-  margin-top: 16px;
-  color: var(--muted);
-  font-size: clamp(1rem, 1.4vw, 1.125rem);
-  line-height: 1.6;
-}
-
-.capitano-hero__copy .button { margin-top: 24px; }
-
-.capitano-hero__artwork {
-  /* Show the rightmost 1239px of the 1983px source, beside the live heading. */
-  aspect-ratio: 1239 / 793;
-  overflow: hidden;
-}
-
-.capitano-hero__artwork img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: right center;
-  mask-image:
-    linear-gradient(to right, transparent, #000 4% 94%, transparent),
-    linear-gradient(to bottom, transparent, #000 6% 93%, transparent);
-  mask-composite: intersect;
-}
-
 .cms-banner.capitano-fresco-campaign {
   --fresco-artwork-width: min(calc(100% - 32px), var(--container));
   --fresco-padding: clamp(16px, 2.5vw, 32px);
@@ -7079,15 +7008,10 @@ input:focus-visible {
   padding: 12px clamp(14px, 4vw, 52px);
 }
 
-.capitano-hero__copy .button,
 .capitano-fresco-campaign .button {
   min-height: 48px;
   gap: 8px;
   border-radius: 8px;
-}
-
-@media (max-width: 760px) {
-  .capitano-hero__layout { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (min-width: 75rem) {

@@ -2,6 +2,7 @@ import type { CatalogProduct, CatalogType, CmsContent } from "@/hooks/data/useCm
 import { PATHS } from "@/config/paths";
 import { NEWS_CATEGORIES } from "@/config/routes.config";
 import picareLogo from "@/assets/brand/picare-logo-dark.png";
+import heroBanner from "@/assets/brand/banner-dau-trang.png";
 import frescoBanner from "@/assets/brand/banner xịt thơm miệng - trong -suot.png";
 import cap001 from "@/assets/products/catalog/CAP001.png";
 import cap002 from "@/assets/products/catalog/CAP002.png";
@@ -584,6 +585,12 @@ export const capitanoNewsMenu: CmsContent["menu"] = [
 
 export const capitanoContent: CmsContent = {
   announcement: capitanoAnnouncement,
+  banners: [{
+    id: "capitano-home-banner",
+    isActive: true,
+    imageUrl: heroBanner,
+    imageAlt: "Pasta del Capitano dòng 1905 · Hơn 120 năm di sản chăm sóc răng miệng từ Ý",
+  }],
   header: { id: "capitano-header", isActive: true, showCart: true },
   menu: [
     { id: "home", isActive: true, label: "Về chúng tôi", linkUrl: PATHS.HOME },
